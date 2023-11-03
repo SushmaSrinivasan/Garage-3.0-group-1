@@ -143,15 +143,32 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         {
             if (_context.ParkVehicle == null)
             {
-                return Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle'  is null.");
+                return Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle' is null.");
             }
+
             var parkVehicle = await _context.ParkVehicle.FindAsync(id);
+
             if (parkVehicle != null)
             {
+                // Calculate the time elapsed in hours
+                double hoursElapsed = (DateTime.Now - parkVehicle.ParkingDate).TotalHours;
+
+                // Create a ReceiptViewModel with the required data
+                var receiptData = new ReceiptViewModel
+                {
+                    RegistrationNumber = parkVehicle.RegistrationNumber,
+                    Brand = parkVehicle.Brand,
+                    Model = parkVehicle.Model,
+                    HoursParked = hoursElapsed
+                };
+
                 _context.ParkVehicle.Remove(parkVehicle);
+                await _context.SaveChangesAsync();
+
+                // Pass the receipt data to the view
+                return View("ReceiptView", receiptData);
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
