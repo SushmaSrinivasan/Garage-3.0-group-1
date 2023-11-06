@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Exercise_12_Garage_2._0___part_1_Group1.Data;
 using Exercise_12_Garage_2._0___part_1_Group1.Models;
 using Exercise_12_Garage_2._0___part_1_Group1.Models.ViewModels;
+using Microsoft.Data.SqlClient;
 
 namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 {
@@ -30,14 +31,47 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
 		public async Task<IActionResult> Search(SearchParkVehicleViewModel vehicle)
 		{
+           
             var vehicles = _context.ParkVehicle.AsQueryable();
 
+            //Search
+            string search = string.Empty;
             if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
             {
+                search += vehicle.RegistrationNumber;
                 vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
             }
 
+            //Sort
+            const string RegistrationNumberSort = "RegistrationNumber",
+                VehicleTypeSort = "VehicleType",
+                ColorSort = "Color",
+                ParkingDateSort = "ParkingDate";
 
+            ViewData["RegistrationNumberSort"] = RegistrationNumberSort;
+            ViewData["VehicleTypeSort"] = VehicleTypeSort;
+            ViewData["ColorSort"] = ColorSort;
+            ViewData["ParkingDate"] = ParkingDateSort;
+
+            switch (vehicle.SortOrder)
+            {
+                case RegistrationNumberSort:
+                    vehicles = vehicles.OrderBy(v => v.RegistrationNumber);
+                    break;
+                case VehicleTypeSort:
+                    vehicles = vehicles.OrderBy(s => s.VehicleType);
+                    break;
+                case ColorSort:
+                    vehicles = vehicles.OrderBy(s => s.Color);
+                    break;
+                case ParkingDateSort:
+                    vehicles = vehicles.OrderByDescending(s => s.ParkingDate);
+                    break;
+                default:
+                    break;
+            }
+
+            //Display
             vehicle.Vehicles = await vehicles.ToListAsync();
 
             return View(vehicle);
