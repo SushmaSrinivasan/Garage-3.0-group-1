@@ -22,9 +22,9 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         // GET: ParkVehicles
         public async Task<IActionResult> Index()
         {
-              return _context.ParkVehicle != null ? 
-                          View(await _context.ParkVehicle.ToListAsync()) :
-                          Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle'  is null.");
+            return _context.ParkVehicle != null ?
+                        View(await _context.ParkVehicle.ToListAsync()) :
+                        Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle'  is null.");
         }
 
         // GET: ParkVehicles/Details/5
@@ -150,16 +150,21 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
             if (parkVehicle != null)
             {
-                // Calculate the time elapsed in hours
-                double hoursElapsed = (DateTime.Now - parkVehicle.ParkingDate).TotalHours;
+                
 
-                // Create a ReceiptViewModel with the required data
+                var timePassed = DateTime.Now - parkVehicle.ParkingDate;
+                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
+                var minutesRoundedDown = (int)Math.Floor(timePassed.TotalMinutes);
+
+                // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel
                 {
                     RegistrationNumber = parkVehicle.RegistrationNumber,
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
-                    HoursParked = hoursElapsed
+                    HoursParked = hoursRoundedDown,
+                    Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
+
                 };
 
                 _context.ParkVehicle.Remove(parkVehicle);
@@ -174,7 +179,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
         private bool ParkVehicleExists(int id)
         {
-          return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
