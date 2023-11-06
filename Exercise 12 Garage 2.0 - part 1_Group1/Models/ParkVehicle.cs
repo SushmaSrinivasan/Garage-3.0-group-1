@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Exercise_12_Garage_2._0___part_1_Group1.Models
 {
@@ -6,19 +7,17 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Models
     {
         [Key] public int Id { get; set; }
         public string RegistrationNumber { get; set; }
-
         public DateTime ParkingDate { get; set; }
-
         public VehicleType VehicleType { get; set; }
-
-        public string Color { get; set;} = string.Empty;
-
+        public string Color { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
-
         public string Model { get; set; } = string.Empty;
-
         public int NumberOfWheels { get; set; }
 
-
+        // Set ParkingDate to the current date and time
+        public ParkVehicle()
+        {
+            ParkingDate = DateTime.Now;
+        }
     }
 }
