@@ -20,7 +20,7 @@
                 <label asp-for="VehicleType" class="control-label"></label>
                 <span asp-validation-for="VehicleType" class="text-danger"></span>
                 <div class="input-group-append">
-                    <select class="form-control" name="genre" asp-items="@Html.GetEnumSelectList<VehicleType>()">
+                    <select class="form-control" name="vehicleType" asp-items="@Html.GetEnumSelectList<VehicleType>()">
                         <option selected="selected" value="">Please select</option>
                     </select>
                 </div>

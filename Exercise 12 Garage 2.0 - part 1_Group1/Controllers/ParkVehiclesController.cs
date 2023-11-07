@@ -73,7 +73,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
             //Display
             vehicle.Vehicles = await vehicles.ToListAsync();
-
             return View(vehicle);
 		}
 
@@ -91,7 +90,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 return NotFound();
             }
-
             return View(parkVehicle);
         }
 
@@ -112,6 +110,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 _context.Add(parkVehicle);
                 await _context.SaveChangesAsync();
+                string informationToUser = "The vehicle has been parked";
+                TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
             return View(parkVehicle);
@@ -149,7 +149,18 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 try
                 {
-                    _context.Update(parkVehicle);
+                    var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
+
+                    existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
+                    existingVehicle.VehicleType = parkVehicle.VehicleType;
+                    existingVehicle.Color = parkVehicle.Color;
+                    existingVehicle.Brand = parkVehicle.Brand;
+                    existingVehicle.Model = parkVehicle.Model;
+                    existingVehicle.NumberOfWheels = parkVehicle.NumberOfWheels;
+
+                    existingVehicle.ParkingDate = existingVehicle.ParkingDate;
+
+                    _context.Update(existingVehicle);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -163,6 +174,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                         throw;
                     }
                 }
+                string informationToUser = "The vehicle information has been updated";
+                TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
             return View(parkVehicle);
@@ -213,6 +226,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
                     HoursParked = hoursRoundedDown,
+                    MinutesParked = minutesRoundedDown,
                     Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
 
                 };
@@ -221,6 +235,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 await _context.SaveChangesAsync();
 
                 // Pass the receipt data to the view
+                string informationToUser = "The vehicle has been collected";
+                TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
             }
 
