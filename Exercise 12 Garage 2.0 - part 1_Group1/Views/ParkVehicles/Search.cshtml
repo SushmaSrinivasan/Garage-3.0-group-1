@@ -6,8 +6,9 @@
 
 <h1>Search</h1>
 
-<form asp-action="Search" asp-route-sortOrder="@Model.SortOrder">
+<form asp-action="Search" method="get">
     <div class="form-group">
+        <input asp-for="SortOrder" type="hidden" value="@Model.SortOrder" />
         <label asp-for="RegistrationNumber" class="control-label"></label>
         <input asp-for="RegistrationNumber" class="form-control" />
         <div class="form-group">
@@ -20,16 +21,16 @@
         <thead>
             <tr>
                 <th>
-                    <a class="text-decoration-none" asp-route-sortOrder="@ViewData["RegistrationNumberSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.RegistrationNumber)</a>
+                    <a class="text-decoration-none" asp-route-SortOrder="@ViewData["RegistrationNumberSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.RegistrationNumber)</a>
                 </th>
                 <th>
-                    <a class="text-decoration-none" asp-route-sortOrder="@ViewData["VehicleTypeSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.VehicleType)</a>
+                    <a class="text-decoration-none" asp-route-SortOrder="@ViewData["VehicleTypeSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.VehicleType)</a>
                 </th>
                 <th>
-                    <a class="text-decoration-none" asp-route-sortOrder="@ViewData["ColorSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.Color)</a>
+                    <a class="text-decoration-none" asp-route-SortOrder="@ViewData["ColorSort"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.Color)</a>
                 </th>
                 <th>
-                    <a class="text-decoration-none" asp-route-sortOrder="@ViewData["ParkingDate"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.ParkingDate)</a>
+                    <a class="text-decoration-none" asp-route-SortOrder="@ViewData["ParkingDate"]" asp-route-RegistrationNumber="@Model.RegistrationNumber">@Html.DisplayNameFor(model => model.ParkingDate)</a>
                 </th>
                 <th></th>
             </tr>

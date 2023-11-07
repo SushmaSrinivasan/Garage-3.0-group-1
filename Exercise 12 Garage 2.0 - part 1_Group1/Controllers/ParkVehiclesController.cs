@@ -9,6 +9,7 @@ using Exercise_12_Garage_2._0___part_1_Group1.Data;
 using Exercise_12_Garage_2._0___part_1_Group1.Models;
 using Exercise_12_Garage_2._0___part_1_Group1.Models.ViewModels;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 {
@@ -73,7 +74,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
             //Display
             vehicle.Vehicles = await vehicles.ToListAsync();
-
             return View(vehicle);
         }
 
@@ -128,12 +128,12 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             return View();
         }
 
-        // POST: ParkVehicles/Create
+        // POST: ParkVehicles/Park
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RegistrationNumber,VehicleType,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
+        public async Task<IActionResult> Park([Bind("Id,RegistrationNumber,VehicleType,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
         {
             if (ModelState.IsValid)
             {
@@ -149,6 +149,11 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                 }
 
+                _context.Add(parkVehicle);
+                await _context.SaveChangesAsync();
+                string informationToUser = "The vehicle has been parked";
+                TempData["feedback"] = informationToUser;
+                return RedirectToAction(nameof(Index));
             }
             return View(parkVehicle);
         }
@@ -185,7 +190,18 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 try
                 {
-                    _context.Update(parkVehicle);
+                    var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
+
+                    existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
+                    existingVehicle.VehicleType = parkVehicle.VehicleType;
+                    existingVehicle.Color = parkVehicle.Color;
+                    existingVehicle.Brand = parkVehicle.Brand;
+                    existingVehicle.Model = parkVehicle.Model;
+                    existingVehicle.NumberOfWheels = parkVehicle.NumberOfWheels;
+
+                    existingVehicle.ParkingDate = existingVehicle.ParkingDate;
+
+                    _context.Update(existingVehicle);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -199,6 +215,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                         throw;
                     }
                 }
+                string informationToUser = "The vehicle information has been updated";
+                TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
             return View(parkVehicle);
@@ -249,6 +267,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
                     HoursParked = hoursRoundedDown,
+                    MinutesParked = minutesRoundedDown,
                     Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
 
                 };
@@ -257,6 +276,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 await _context.SaveChangesAsync();
 
                 // Pass the receipt data to the view
+                string informationToUser = "The vehicle has been collected";
+                TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
             }
 
@@ -266,6 +287,12 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         private bool ParkVehicleExists(int id)
         {
             return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

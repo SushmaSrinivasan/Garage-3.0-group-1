@@ -23,7 +23,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Create">Park</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Park">Park</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Search">Search</a>
@@ -35,6 +35,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @TempData["feedback"] @* informationToUser from ParkVehicleController goes here *@
             @RenderBody()
         </main>
     </div>
