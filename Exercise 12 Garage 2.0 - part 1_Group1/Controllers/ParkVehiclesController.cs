@@ -195,10 +195,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                     //Checking for changes
                     string propertiesWithAChange = "";
-                    if (existingVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
-                    {
-                        propertiesWithAChange += "registration number and ";
-                    }
                     if (existingVehicle.VehicleType != parkVehicle.VehicleType)
                     {
                         propertiesWithAChange += "vehicle type and ";
