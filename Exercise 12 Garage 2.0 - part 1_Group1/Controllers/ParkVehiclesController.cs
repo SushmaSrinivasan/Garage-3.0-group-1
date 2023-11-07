@@ -124,7 +124,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         }
 
         // GET: ParkVehicles/Park
-        public IActionResult Create()
+        public IActionResult Park()
         {
             return View();
         }
