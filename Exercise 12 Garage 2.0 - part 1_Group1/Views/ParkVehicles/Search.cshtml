@@ -6,7 +6,7 @@
 
 <h1>Search</h1>
 
-<form asp-action="Search" asp-route-sortOrder="@Model.SortOrder">
+<form asp-action="Search" asp-route-sortOrder="@Model.SortOrder" method="get">
     <div class="form-group">
         <label asp-for="RegistrationNumber" class="control-label"></label>
         <input asp-for="RegistrationNumber" class="form-control" />
