@@ -41,7 +41,7 @@
                         @{
                             var timePassed = DateTime.Now - item.ParkingDate;
                             var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                            var minutesRoundedDown = (int)Math.Floor(timePassed.TotalMinutes);
+                            var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
                         }
                         @hoursRoundedDown hours @minutesRoundedDown minutes
                 </td>

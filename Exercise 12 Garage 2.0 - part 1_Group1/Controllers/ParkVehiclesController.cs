@@ -149,7 +149,18 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 try
                 {
-                    _context.Update(parkVehicle);
+                    var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
+
+                    existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
+                    existingVehicle.VehicleType = parkVehicle.VehicleType;
+                    existingVehicle.Color = parkVehicle.Color;
+                    existingVehicle.Brand = parkVehicle.Brand;
+                    existingVehicle.Model = parkVehicle.Model;
+                    existingVehicle.NumberOfWheels = parkVehicle.NumberOfWheels;
+
+                    existingVehicle.ParkingDate = existingVehicle.ParkingDate;
+
+                    _context.Update(existingVehicle);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -213,6 +224,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
                     HoursParked = hoursRoundedDown,
+                    MinutesParked = minutesRoundedDown,
                     Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
 
                 };
