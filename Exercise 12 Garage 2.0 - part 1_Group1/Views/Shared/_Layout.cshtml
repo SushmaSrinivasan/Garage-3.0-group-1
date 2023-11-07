@@ -35,7 +35,7 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            @TempData["feedback"] @* informationToUser from ParkVehicleController goes here *@
+            <p style="color:blue">@Html.Raw(TempData["feedback"])</p> @* informationToUser from ParkVehicleController goes here *@
             @RenderBody()
         </main>
     </div>

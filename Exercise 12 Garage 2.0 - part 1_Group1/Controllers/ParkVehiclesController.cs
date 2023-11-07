@@ -10,6 +10,7 @@ using Exercise_12_Garage_2._0___part_1_Group1.Models;
 using Exercise_12_Garage_2._0___part_1_Group1.Models.ViewModels;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 {
@@ -111,7 +112,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 _context.Add(parkVehicle);
                 await _context.SaveChangesAsync();
-                string informationToUser = "The vehicle has been parked";
+                string informationToUser = $"Vehicle {parkVehicle.RegistrationNumber} has been parked";
                 TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
@@ -152,6 +153,46 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 {
                     var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
 
+                    //Checking for changes
+                    string propertiesWithAChange = "";
+                    if (existingVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
+                    {
+                        propertiesWithAChange += "registration number and ";
+                    }
+                    if (existingVehicle.VehicleType != parkVehicle.VehicleType)
+                    {
+                        propertiesWithAChange += "vehicle type and ";
+                    }
+                    if (existingVehicle.Color != parkVehicle.Color)
+                    {
+                        propertiesWithAChange += "color and ";
+                    }
+                    if (existingVehicle.Brand != parkVehicle.Brand)
+                    {
+                        propertiesWithAChange += "brand and ";
+                    }
+                    if (existingVehicle.Model != parkVehicle.Model)
+                    {
+                        propertiesWithAChange += "model and ";
+                    }
+                    if (existingVehicle.NumberOfWheels != parkVehicle.NumberOfWheels)
+                    {
+                        propertiesWithAChange += "number of wheels and ";
+                    }
+
+                    //Writing changes as feedback
+                    if (!string.IsNullOrEmpty(propertiesWithAChange))
+                    {
+                        propertiesWithAChange = propertiesWithAChange.TrimEnd('a', 'n', 'd', ' ');
+                        string informationToUser = $"The <strong>{propertiesWithAChange}</strong> for vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
+                        TempData["feedback"] = informationToUser;
+                    }
+                    else
+                    {
+                        TempData["feedback"] = $"No changes to {parkVehicle.RegistrationNumber} performed";
+                    }
+
+                    //Performing changes
                     existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
                     existingVehicle.VehicleType = parkVehicle.VehicleType;
                     existingVehicle.Color = parkVehicle.Color;
@@ -175,8 +216,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                         throw;
                     }
                 }
-                string informationToUser = "The vehicle information has been updated";
-                TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
             return View(parkVehicle);
@@ -236,7 +275,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 await _context.SaveChangesAsync();
 
                 // Pass the receipt data to the view
-                string informationToUser = "The vehicle has been collected";
+                string informationToUser = $"{parkVehicle.VehicleType} {parkVehicle.RegistrationNumber} has been collected";
                 TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
             }
