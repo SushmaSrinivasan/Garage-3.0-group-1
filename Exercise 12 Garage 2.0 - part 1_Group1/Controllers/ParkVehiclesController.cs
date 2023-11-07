@@ -9,6 +9,7 @@ using Exercise_12_Garage_2._0___part_1_Group1.Data;
 using Exercise_12_Garage_2._0___part_1_Group1.Models;
 using Exercise_12_Garage_2._0___part_1_Group1.Models.ViewModels;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 {
@@ -246,6 +247,12 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         private bool ParkVehicleExists(int id)
         {
             return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
