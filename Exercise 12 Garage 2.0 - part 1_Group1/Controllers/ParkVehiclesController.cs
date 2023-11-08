@@ -150,15 +150,13 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 {
                     _context.Add(parkVehicle);
                     await _context.SaveChangesAsync();
+                    string informationToUser = $"Vehicle {parkVehicle.RegistrationNumber} has been parked";
+                    TempData["feedback"] = informationToUser;
                     return RedirectToAction(nameof(Index));
 
                 }
 
-                _context.Add(parkVehicle);
-                await _context.SaveChangesAsync();
-                string informationToUser = $"Vehicle {parkVehicle.RegistrationNumber} has been parked";
-                TempData["feedback"] = informationToUser;
-                return RedirectToAction(nameof(Index));
+
             }
             return View(parkVehicle);
         }
