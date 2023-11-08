@@ -154,15 +154,13 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 {
                     _context.Add(parkVehicle);
                     await _context.SaveChangesAsync();
+                    string informationToUser = $"Vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been parked";
+                    TempData["feedback"] = informationToUser;
                     return RedirectToAction(nameof(Index));
 
                 }
 
-                _context.Add(parkVehicle);
-                await _context.SaveChangesAsync();
-                string informationToUser = $"Vehicle {parkVehicle.RegistrationNumber} has been parked";
-                TempData["feedback"] = informationToUser;
-                return RedirectToAction(nameof(Index));
+
             }
             return View(parkVehicle);
         }
@@ -223,32 +221,38 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                     //Checking for changes
                     string propertiesWithAChange = "";
+                    List<string> changedProperties = new List<string>();
+
+                    if (existingVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
+                    {
+                        changedProperties.Add("<strong>registration number</strong>");
+                    }
                     if (existingVehicle.VehicleType != parkVehicle.VehicleType)
                     {
-                        propertiesWithAChange += "vehicle type and ";
+                        changedProperties.Add("<strong>vehicle type</strong>");
                     }
                     if (existingVehicle.Color != parkVehicle.Color)
                     {
-                        propertiesWithAChange += "color and ";
+                        changedProperties.Add("<strong>color</strong>");
                     }
                     if (existingVehicle.Brand != parkVehicle.Brand)
                     {
-                        propertiesWithAChange += "brand and ";
+                        changedProperties.Add("<strong>brand</strong>");
                     }
                     if (existingVehicle.Model != parkVehicle.Model)
                     {
-                        propertiesWithAChange += "model and ";
+                        changedProperties.Add("<strong>model</strong>");
                     }
                     if (existingVehicle.NumberOfWheels != parkVehicle.NumberOfWheels)
                     {
-                        propertiesWithAChange += "number of wheels and ";
+                        changedProperties.Add("<strong>number of wheels</strong>");
                     }
-
                     //Writing changes as feedback
-                    if (!string.IsNullOrEmpty(propertiesWithAChange))
+                    if (changedProperties.Count > 0)
                     {
-                        propertiesWithAChange = propertiesWithAChange.TrimEnd('a', 'n', 'd', ' ');
-                        string informationToUser = $"The <strong>{propertiesWithAChange}</strong> for vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
+                        propertiesWithAChange = string.Join(" and ", changedProperties);
+
+                        string informationToUser = $"The {propertiesWithAChange} for vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
                         TempData["feedback"] = informationToUser;
                     }
                     else
@@ -320,7 +324,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                 var timePassed = DateTime.Now - parkVehicle.ParkingDate;
                 var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                var minutesRoundedDown = (int)Math.Floor(timePassed.TotalMinutes);
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
 
                 // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel
@@ -338,7 +342,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 await _context.SaveChangesAsync();
 
                 // Pass the receipt data to the view
-                string informationToUser = $"{parkVehicle.VehicleType} {parkVehicle.RegistrationNumber} has been collected";
+                string informationToUser = $"{parkVehicle.VehicleType} <strong>{parkVehicle.RegistrationNumber}</strong> has been collected";
                 TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
             }
