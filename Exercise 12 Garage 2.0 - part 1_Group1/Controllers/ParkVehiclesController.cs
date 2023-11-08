@@ -79,8 +79,12 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         }
 
         [AcceptVerbs("GET", "POST")]
-        public async Task<IActionResult> IsRegistrationNumberExists(string registrationNumber)
+        public async Task<IActionResult> IsRegistrationNumberExists(string registrationNumber, string existingRegistrationNumber)
         {
+            if (registrationNumber == existingRegistrationNumber)
+            {
+                return Json(true);
+            }
             bool isRegistrationNumberExists = false;
             try
             {
@@ -172,7 +176,21 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 return NotFound();
             }
-            return View(parkVehicle);
+
+            var editpatkVehicle = new EditParkVehicleViewModel
+            {
+                Id = parkVehicle.Id,
+                ExistingRegistrationNumber = parkVehicle.RegistrationNumber,
+                RegistrationNumber = parkVehicle.RegistrationNumber,
+                Brand = parkVehicle.Brand,
+                Color = parkVehicle.Color,
+                Model = parkVehicle.Model,
+                NumberOfWheels = parkVehicle.NumberOfWheels,
+                ParkingDate = parkVehicle.ParkingDate,
+                VehicleType = parkVehicle.VehicleType
+            };
+
+            return View(editpatkVehicle);
         }
 
         // POST: ParkVehicles/Edit/5
@@ -180,7 +198,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RegistrationNumber,VehicleType,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
+        public async Task<IActionResult> Edit(int id, EditParkVehicleViewModel parkVehicle)
         {
             if (id != parkVehicle.Id)
             {
@@ -256,7 +274,6 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             }
             return View(parkVehicle);
         }
-
         // GET: ParkVehicles/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
