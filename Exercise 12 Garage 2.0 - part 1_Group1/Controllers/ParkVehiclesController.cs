@@ -203,6 +203,12 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 return NotFound();
             }
 
+            if (parkVehicle.ExistingRegistrationNumber != parkVehicle.RegistrationNumber && await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicle.RegistrationNumber)))
+            {
+                ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");
+                return View(parkVehicle);
+            }
+
             if (ModelState.IsValid)
             {
                 try
