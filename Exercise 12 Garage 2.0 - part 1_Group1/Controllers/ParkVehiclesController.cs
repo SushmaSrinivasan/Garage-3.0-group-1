@@ -37,24 +37,27 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             var vehicles = _context.ParkVehicle.AsQueryable();
 
             //Search
-            string search = string.Empty;
             if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
             {
-                search += vehicle.RegistrationNumber;
                 vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
             }
 
             //Sort
+            //This are constants that contain the value of the SortOrder param in the URl
+            //Example: https://localhost:7215/ParkVehicles/Search?SortOrder=VehicleType
             const string RegistrationNumberSort = "RegistrationNumber",
                 VehicleTypeSort = "VehicleType",
                 ColorSort = "Color",
                 ParkingDateSort = "ParkingDate";
 
+            //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
             ViewData["RegistrationNumberSort"] = RegistrationNumberSort;
             ViewData["VehicleTypeSort"] = VehicleTypeSort;
             ViewData["ColorSort"] = ColorSort;
             ViewData["ParkingDate"] = ParkingDateSort;
 
+            //vehicle.SortOrder will contain the value of SortOrder param that in the example is ...Search?SortOrder=VehicleType
+            //So in this case it sorts by VehicleType
             switch (vehicle.SortOrder)
             {
                 case RegistrationNumberSort:
@@ -74,6 +77,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             }
 
             //Display
+            //Gets the search result
             vehicle.Vehicles = await vehicles.ToListAsync();
             return View(vehicle);
         }
