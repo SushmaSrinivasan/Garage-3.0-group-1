@@ -316,11 +316,11 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
             if (parkVehicle != null)
             {
-
-
-                var timePassed = DateTime.Now - parkVehicle.ParkingDate;
-                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
+               
+                 
+                var timePassed = DateTime.Now - parkVehicle.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
+                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);  // Converts timePassed and rounds down its Hours to a full number.
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
 
                 // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel

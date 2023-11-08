@@ -39,9 +39,9 @@
                     @Html.DisplayFor(modelItem => item.ParkingDate)
                 <td>
                         @{
-                            var timePassed = DateTime.Now - item.ParkingDate;
-                            var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                            var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
+                            var timePassed = DateTime.Now - item.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
+                            var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours); // Converts timePassed and rounds down its Hours to a full number.
+                            var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
                         }
                         @hoursRoundedDown hours @minutesRoundedDown minutes
                 </td>
