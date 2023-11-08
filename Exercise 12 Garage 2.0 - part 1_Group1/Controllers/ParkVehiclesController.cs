@@ -310,7 +310,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                 var timePassed = DateTime.Now - parkVehicle.ParkingDate;
                 var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                var minutesRoundedDown = (int)Math.Floor(timePassed.TotalMinutes);
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
 
                 // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel
