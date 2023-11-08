@@ -79,6 +79,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         }
 
         [AcceptVerbs("GET", "POST")]
+        //this method is defined under [Remote] data annotation to check uniqueness
         public async Task<IActionResult> IsRegistrationNumberExists(string registrationNumber, string existingRegistrationNumber)
         {
             if (registrationNumber == existingRegistrationNumber)
@@ -88,6 +89,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             bool isRegistrationNumberExists = false;
             try
             {
+                //checks if the existing reg num equals with the entered reg num
                 isRegistrationNumberExists = await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(registrationNumber));
                 return Json(!isRegistrationNumberExists);
             }
@@ -104,7 +106,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
             {
                 return NotFound();
             }
-
+            //creating instance for model and assigning values to the model
             var detailsViewModel = await _context.ParkVehicle
                 .Select(v => new DetailViewModel
                 {
@@ -142,12 +144,14 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
         {
             if (ModelState.IsValid)
             {
+                //checks if the registration number entered is matching with existing registration no's
                 if (await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicle.RegistrationNumber)))
                 {
-                    ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");
+                    ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");//if same, returns the error message
                 }
                 else
                 {
+                    //if not equal, then adds the vehicle to the park and displays the feedback message
                     _context.Add(parkVehicle);
                     await _context.SaveChangesAsync();
                     string informationToUser = $"Vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been parked";
