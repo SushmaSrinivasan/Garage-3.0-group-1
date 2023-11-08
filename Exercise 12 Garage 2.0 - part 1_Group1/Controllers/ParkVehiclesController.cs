@@ -308,7 +308,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
 
                 var timePassed = DateTime.Now - parkVehicle.ParkingDate;
                 var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
-                var minutesRoundedDown = (int)Math.Floor(timePassed.TotalMinutes);
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
 
                 // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel
@@ -326,7 +326,7 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Controllers
                 await _context.SaveChangesAsync();
 
                 // Pass the receipt data to the view
-                string informationToUser = $"{parkVehicle.VehicleType} {parkVehicle.RegistrationNumber} has been collected";
+                string informationToUser = $"{parkVehicle.VehicleType} <strong>{parkVehicle.RegistrationNumber}</strong> has been collected";
                 TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
             }
