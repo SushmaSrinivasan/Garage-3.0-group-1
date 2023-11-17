@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ParkVehicle>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Group 1's garage</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RegistrationNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VehicleType)
+            </th>
+            <th>
+                Date and Time of Parking.
+            </th>
+            <th>
+                Time Parked
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegistrationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VehicleType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParkingDate)
+                <td>
+                        @{
+                            var timePassed = DateTime.Now - item.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
+                            var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours); // Converts timePassed and rounds down its Hours to a full number.
+                            var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
+                        }
+                        @hoursRoundedDown hours @minutesRoundedDown minutes
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Collect</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
