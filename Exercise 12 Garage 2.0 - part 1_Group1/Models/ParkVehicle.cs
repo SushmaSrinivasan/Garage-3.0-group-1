@@ -6,11 +6,17 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Models
 {
     public class ParkVehicle
     {
-        [Key] public int Id { get; set; }
-        [Remote("IsRegistrationNumberExists","ParkVehicles",ErrorMessage="Registration Number already exists!")]
+        [Key] 
+        public int Id { get; set; }
+        //public int VehicleTypeId { get; set; }
+        public int ParkingSpaceId { get; set; }
+
+        [Remote("IsRegistrationNumberExists","ParkVehicles", ErrorMessage="Registration Number already exists!")]
         public string RegistrationNumber { get; set; }
         public DateTime ParkingDate { get; set; }
         public VehicleType VehicleType { get; set; }
+
+        [StringLength(50)]
         public string Color { get; set; } = string.Empty;
 
         [StringLength(15)]
