@@ -10,7 +10,15 @@ namespace Garage3.Persistence.Data
         {
         }
 
+        public GarageContext()
+        {
+            
+        }
+
+
         public DbSet<ParkVehicle> ParkVehicle => Set<ParkVehicle>();
+        
+        public DbSet<Member> Member => Set<Member>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
