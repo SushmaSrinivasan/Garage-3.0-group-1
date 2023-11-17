@@ -28,6 +28,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Models
 
         public Membership Membership { get; set; }
 
+        public ICollection<ParkVehicle>? Vehicles { get; set; }
+
         private DateTime GetBirhtDateFromPersonnummer(long personnummer)
         {
             int year,

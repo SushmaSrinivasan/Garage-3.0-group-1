@@ -16,6 +16,8 @@ namespace Exercise_12_Garage_2._0___part_1_Group1.Models
         public DateTime ParkingDate { get; set; }
         public VehicleType VehicleType { get; set; }
 
+        public Member Owner { get; set; }
+
         [StringLength(50)]
         public string Color { get; set; } = string.Empty;
 
