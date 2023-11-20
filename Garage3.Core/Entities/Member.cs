@@ -29,6 +29,8 @@ namespace Garage3.Core.Entities
 
         public Membership Membership { get; set; }
 
+        public ICollection<ParkVehicle>? Vehicles { get; set; }
+
         private DateTime GetBirhtDateFromPersonnummer(long personnummer)
         {
             int year,

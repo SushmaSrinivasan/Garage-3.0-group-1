@@ -8,12 +8,13 @@ namespace Garage3.Core.Entities
         [Key]
         public int Id { get; set; }
         //public int VehicleTypeId { get; set; }
-        public int ParkingSpaceId { get; set; }
 
         [Remote("IsRegistrationNumberExists", "ParkVehicles", ErrorMessage = "Registration Number already exists!")]
         public string RegistrationNumber { get; set; }
         public DateTime ParkingDate { get; set; }
         public VehicleType VehicleType { get; set; }
+
+        public Member Owner { get; set; }
 
         [StringLength(50)]
         public string Color { get; set; } = string.Empty;
