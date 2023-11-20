@@ -24,6 +24,8 @@ namespace Garage3.Core.Entities
         [StringLength(50)]
         public string LastName { get; set; } = default!;
 
+        public string FullName { get => $"{FirstName} {LastName}"; }
+
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
