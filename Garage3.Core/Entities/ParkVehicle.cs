@@ -7,7 +7,8 @@ namespace Garage3.Core.Entities
     {
         [Key]
         public int Id { get; set; }
-        //public int VehicleTypeId { get; set; }
+        public int VehicleTypeId { get; set; }
+        public int MemberId { get; set; }
 
         [Remote("IsRegistrationNumberExists", "ParkVehicles", ErrorMessage = "Registration Number already exists!")]
         public string RegistrationNumber { get; set; }
@@ -33,5 +34,7 @@ namespace Garage3.Core.Entities
         {
             ParkingDate = DateTime.Now;
         }
+
+        public ICollection<ParkingSpace> Spots { get; set; }
     }
 }

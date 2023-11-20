@@ -24,11 +24,11 @@ namespace Garage3.Persistence.Migrations
 
             modelBuilder.Entity("Garage3.Core.Entities.Member", b =>
                 {
-                    b.Property<long>("Personnummer")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Personnummer"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
@@ -46,7 +46,10 @@ namespace Garage3.Persistence.Migrations
                     b.Property<int>("Membership")
                         .HasColumnType("int");
 
-                    b.HasKey("Personnummer");
+                    b.Property<long>("Personnummer")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Member");
                 });
@@ -69,6 +72,9 @@ namespace Garage3.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -76,9 +82,6 @@ namespace Garage3.Persistence.Migrations
 
                     b.Property<int>("NumberOfWheels")
                         .HasColumnType("int");
-
-                    b.Property<long>("OwnerPersonnummer")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("ParkingDate")
                         .HasColumnType("datetime2");
@@ -92,7 +95,7 @@ namespace Garage3.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerPersonnummer");
+                    b.HasIndex("MemberId");
 
                     b.HasIndex("VehicleTypeId");
 
@@ -107,15 +110,12 @@ namespace Garage3.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ParkVehicleId")
+                    b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParkVehicleId");
+                    b.HasIndex("VehicleId");
 
                     b.ToTable("ParkingSpaces");
                 });
@@ -128,19 +128,24 @@ namespace Garage3.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
                     b.Property<int>("Spaces")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("VehicleType");
+                    b.ToTable("VehicleTypes");
                 });
 
             modelBuilder.Entity("Garage3.Core.Entities.ParkVehicle", b =>
                 {
                     b.HasOne("Garage3.Core.Entities.Member", "Owner")
                         .WithMany("Vehicles")
-                        .HasForeignKey("OwnerPersonnummer")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -157,16 +162,23 @@ namespace Garage3.Persistence.Migrations
 
             modelBuilder.Entity("Garage3.Core.Entities.ParkingSpace", b =>
                 {
-                    b.HasOne("Garage3.Core.Entities.ParkVehicle", "ParkVehicle")
-                        .WithMany()
-                        .HasForeignKey("ParkVehicleId");
+                    b.HasOne("Garage3.Core.Entities.ParkVehicle", "Vehicle")
+                        .WithMany("Spots")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("ParkVehicle");
+                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("Garage3.Core.Entities.Member", b =>
                 {
                     b.Navigation("Vehicles");
+                });
+
+            modelBuilder.Entity("Garage3.Core.Entities.ParkVehicle", b =>
+                {
+                    b.Navigation("Spots");
                 });
 #pragma warning restore 612, 618
         }

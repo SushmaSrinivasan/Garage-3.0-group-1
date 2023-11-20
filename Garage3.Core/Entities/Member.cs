@@ -1,19 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
 namespace Garage3.Core.Entities
 {
     public class Member
     {
-        private long personnummer;
         [Key]
-        [Range(0, 999999999999)]
+        public int Id { get; set; }
+
+        private long personnummer;
+        
+        
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Personnummer
         {
             get => personnummer;
             set
             {
-                Personnummer = value;
+                personnummer = value;
                 BirthDate = GetBirhtDateFromPersonnummer(value);
             }
         }
@@ -50,7 +55,7 @@ namespace Garage3.Core.Entities
 
             day = Modifiedpersonnummer / 10000;
 
-            return new DateTime(year, month, day);
+            return DateTime.Now;
 
         }
     }
