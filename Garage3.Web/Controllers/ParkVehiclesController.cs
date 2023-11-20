@@ -347,7 +347,40 @@ namespace Garage3.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        private StatisticsViewModel CalculateStatistics()
+        {
+            var totalWheels = _context.ParkVehicle.Sum(v => v.NumberOfWheels);
 
+            var totalRevenue = _context.ParkVehicle
+                .AsEnumerable()
+                .Select(v =>
+                {
+                    var timePassed = DateTime.Now - v.ParkingDate;
+                    var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
+                    var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
+                    return (hours: hoursRoundedDown, minutes: minutesRoundedDown);
+                })
+                .Sum(time => (time.hours * 70) + (time.minutes * 1.2));
+
+            var vehicleTypeAmount = _context.ParkVehicle
+                .GroupBy(v => v.VehicleType)
+                .ToDictionary(group => group.Key, group => group.Count());
+
+            var statistics = new StatisticsViewModel
+            {
+                TotalWheels = totalWheels,
+                TotalRevenue = totalRevenue,
+                VehicleTypeAmount = vehicleTypeAmount
+            };
+
+            return statistics;
+        }
+
+        public IActionResult Statistics()
+        {
+            var statistics = CalculateStatistics();
+            return View(statistics);
+        }
         private bool ParkVehicleExists(int id)
         {
             return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
