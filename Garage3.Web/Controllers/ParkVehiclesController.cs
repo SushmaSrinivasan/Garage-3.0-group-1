@@ -20,60 +20,165 @@ namespace Garage3.Web.Controllers
         // GET: ParkVehicles
         public async Task<IActionResult> Index()
         {
-            return _context.ParkVehicle != null ?
-                        View(await _context.ParkVehicle.ToListAsync()) :
-                        Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle'  is null.");
+            SearchParkVehicleViewModel searchview = new SearchParkVehicleViewModel();
+            searchview.Vehicles = await _context.ParkVehicle.Include(v => v.Owner).Include(v => v.VehicleType).Select(v => new ListViewModel
+            {
+                Owner = v.Owner.FullName,
+                Membership = v.Owner.Membership.ToString(),
+                ParkTime = v.ParkingDate,
+                ParkVehicleId = v.Id,
+                RegistrationNumber = v.RegistrationNumber,
+                Type = v.VehicleType.Name
+            }).ToListAsync();
+            return View(searchview);
         }
 
-        public async Task<IActionResult> Search(SearchParkVehicleViewModel vehicle)
+        //public async Task<IActionResult> Search(SearchParkVehicleViewModel vehicle)
+        //{
+
+        //    var vehicles = _context.ParkVehicle.AsQueryable();
+
+        //    //Search
+        //    if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
+        //    {
+        //        vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
+        //    }
+
+        //    //Sort
+        //    //This are constants that contain the value of the SortOrder param in the URl
+        //    //Example: https://localhost:7215/ParkVehicles/Search?SortOrder=VehicleType
+        //    const string RegistrationNumberSort = "RegistrationNumber",
+        //        VehicleTypeSort = "VehicleType",
+        //        ColorSort = "Color",
+        //        ParkingDateSort = "ParkingDate";
+
+        //    //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
+        //    ViewData["RegistrationNumberSort"] = RegistrationNumberSort;
+        //    ViewData["VehicleTypeSort"] = VehicleTypeSort;
+        //    ViewData["ColorSort"] = ColorSort;
+        //    ViewData["ParkingDate"] = ParkingDateSort;
+
+        //    //vehicle.SortOrder will contain the value of SortOrder param that in the example is ...Search?SortOrder=VehicleType
+        //    //So in this case it sorts by VehicleType
+        //    switch (vehicle.SortOrder)
+        //    {
+        //        case RegistrationNumberSort:
+        //            vehicles = vehicles.OrderBy(v => v.RegistrationNumber);
+        //            break;
+        //        case VehicleTypeSort:
+        //            vehicles = vehicles.OrderBy(s => s.VehicleType);
+        //            break;
+        //        case ColorSort:
+        //            vehicles = vehicles.OrderBy(s => s.Color);
+        //            break;
+        //        case ParkingDateSort:
+        //            vehicles = vehicles.OrderByDescending(s => s.ParkingDate);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    //Display
+        //    //Gets the search result
+        //    vehicle.Vehicles = await vehicles.ToListAsync();
+        //    return View(vehicle);
+        //}
+
+        private IQueryable<ParkVehicle> Search2(SearchParkVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
         {
 
-            var vehicles = _context.ParkVehicle.AsQueryable();
-
-            //Search
             if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
             {
                 vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
             }
 
-            //Sort
-            //This are constants that contain the value of the SortOrder param in the URl
-            //Example: https://localhost:7215/ParkVehicles/Search?SortOrder=VehicleType
-            const string RegistrationNumberSort = "RegistrationNumber",
-                VehicleTypeSort = "VehicleType",
-                ColorSort = "Color",
-                ParkingDateSort = "ParkingDate";
-
-            //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
-            ViewData["RegistrationNumberSort"] = RegistrationNumberSort;
-            ViewData["VehicleTypeSort"] = VehicleTypeSort;
-            ViewData["ColorSort"] = ColorSort;
-            ViewData["ParkingDate"] = ParkingDateSort;
-
-            //vehicle.SortOrder will contain the value of SortOrder param that in the example is ...Search?SortOrder=VehicleType
-            //So in this case it sorts by VehicleType
-            switch (vehicle.SortOrder)
+            if (!string.IsNullOrWhiteSpace(vehicle.Type))
             {
-                case RegistrationNumberSort:
-                    vehicles = vehicles.OrderBy(v => v.RegistrationNumber);
-                    break;
-                case VehicleTypeSort:
-                    vehicles = vehicles.OrderBy(s => s.VehicleType);
-                    break;
-                case ColorSort:
-                    vehicles = vehicles.OrderBy(s => s.Color);
-                    break;
-                case ParkingDateSort:
-                    vehicles = vehicles.OrderByDescending(s => s.ParkingDate);
-                    break;
-                default:
-                    break;
+                //vehicles = vehicles.Where(v => v.VehicleType.Name.StartsWith(vehicle.Type));
             }
 
-            //Display
-            //Gets the search result
-            vehicle.Vehicles = await vehicles.ToListAsync();
-            return View(vehicle);
+            if (!string.IsNullOrWhiteSpace(vehicle.Owner))
+            {
+                vehicles = vehicles.Where(v => v.Owner.FullName.StartsWith(vehicle.Owner));
+            }
+
+            return vehicles;
+        }
+
+        private IQueryable<ParkVehicle> Sort(SearchParkVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
+        {
+            if (string.IsNullOrWhiteSpace(vehicle.Sort))
+            {
+                return vehicles;
+            }
+
+            //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
+            SearchParkVehicleViewModel.SortParam sortParams = SearchParkVehicleViewModel.SortParams;
+
+            ViewData[sortParams.Owner] = sortParams.Owner;
+            ViewData[sortParams.Membership] = sortParams.Membership;
+            ViewData[sortParams.Type] = sortParams.Type;
+            ViewData[sortParams.RegistrationNumber] = sortParams.RegistrationNumber;
+            ViewData[sortParams.ParkTime] = sortParams.ParkTime;
+
+            switch (vehicle.Sort)
+            {
+                case string s when s.StartsWith(sortParams.Owner):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.Owner] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return vehicles.OrderByDescending(v => v.Owner.FullName);
+                    }
+                    else
+                    {
+                        return vehicles.OrderBy(v => v.Owner.FullName);
+                    }
+                case string s when s.StartsWith(sortParams.Membership):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.Membership] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return vehicles.OrderByDescending(v => v.Owner.Membership);
+                    }
+                    else
+                    {
+                        return vehicles.OrderBy(v => v.Owner.Membership);
+                    }
+                case string s when s.StartsWith(sortParams.Type):
+                    //if (!s.EndsWith(sortParams.DescendingSuffix))
+                    //{
+                    //    ViewData[sortParams.Type] += sortParams.DescendingSuffix;//Adding descending suffix
+                    //    return vehicles.OrderByDescending(v => v.VehicleType.Name);
+                    //}
+                    //else
+                    //{
+                    //    return vehicles.OrderBy(v => v.VehicleType.Name);
+                    //}
+                    break;
+                case string s when s.StartsWith(sortParams.RegistrationNumber):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.RegistrationNumber] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return vehicles.OrderByDescending(v => v.RegistrationNumber);
+                    }
+                    else
+                    {
+                        return vehicles.OrderBy(v => v.RegistrationNumber);
+                    }
+                case string s when s.StartsWith(sortParams.ParkTime):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.ParkTime] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return vehicles.OrderByDescending(v => v.ParkingDate);
+                    }
+                    else
+                    {
+                        return vehicles.OrderBy(v => v.ParkingDate);
+                    }
+                default:
+                    return vehicles;
+            }
+            return null;
+
         }
 
         [AcceptVerbs("GET", "POST")]

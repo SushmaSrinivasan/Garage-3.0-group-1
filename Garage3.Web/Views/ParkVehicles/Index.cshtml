@@ -1,7 +1,8 @@
-﻿@model IEnumerable<ParkVehicle>
+﻿@model SearchParkVehicleViewModel
 
 @{
     ViewData["Title"] = "Index";
+    SearchParkVehicleViewModel.SortParam sortParams = SearchParkVehicleViewModel.SortParams;
 }
 
 <h1>Group 1's garage</h1>
@@ -10,45 +11,53 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Owner)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Membership)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.RegistrationNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.VehicleType)
+                @Html.DisplayNameFor(model => model.ParkTime)
             </th>
             <th>
-                Date and Time of Parking.
-            </th>
-            <th>
-                Time Parked
+                @Html.DisplayNameFor(model => model.TimeParked)
             </th>
 
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Vehicles)
         {
             <tr>
+                <td>
+                    <a href="@item.OwnerPersonnummer">@Html.DisplayFor(modelItem => item.Owner)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Membership)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.RegistrationNumber)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.VehicleType)
+                    @Html.DisplayFor(modelItem => item.ParkTime)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ParkingDate)
-                <td>
-                        @{
-                            var timePassed = DateTime.Now - item.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
-                            var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours); // Converts timePassed and rounds down its Hours to a full number.
-                            var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
-                        }
-                        @hoursRoundedDown hours @minutesRoundedDown minutes
+                    @Html.DisplayFor(modelItem => item.TimeParked)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Collect</a>
+                    <a asp-action="Edit" asp-route-id="@item.ParkVehicleId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ParkVehicleId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ParkVehicleId">Collect</a>
                 </td>
             </tr>
         }
