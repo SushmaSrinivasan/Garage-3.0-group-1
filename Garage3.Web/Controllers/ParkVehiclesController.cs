@@ -20,7 +20,17 @@ namespace Garage3.Web.Controllers
         // GET: ParkVehicles
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ParkVehicle.ToListAsync());
+            SearchParkVehicleViewModel searchview = new SearchParkVehicleViewModel();
+            searchview.Vehicles = await _context.ParkVehicle.Include(v => v.Owner).Include(v => v.VehicleType).Select(v => new ListViewModel
+            {
+                Owner = v.Owner.FullName,
+                Membership = v.Owner.Membership.ToString(),
+                ParkTime = v.ParkingDate,
+                ParkVehicleId = v.Id,
+                RegistrationNumber = v.RegistrationNumber,
+                Type = v.VehicleType.Name
+            }).ToListAsync();
+            return View(searchview);
         }
 
         //public async Task<IActionResult> Search(SearchParkVehicleViewModel vehicle)
