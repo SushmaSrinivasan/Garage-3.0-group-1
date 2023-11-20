@@ -5,17 +5,32 @@ namespace Garage3.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<GarageContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Exercise_12_Garage_2_0___part_1_Group1Context") ?? throw new InvalidOperationException("Connection string 'Exercise_12_Garage_2_0___part_1_Group1Context' not found.")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("GarageContext") ?? throw new InvalidOperationException("Connection string 'Exercise_12_Garage_2_0___part_1_Group1Context' not found.")));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services= scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<GarageContext>();
+                    await new DbInitializer().Initialize(context);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred creating the DB");
+                }
+            }
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -23,6 +38,7 @@ namespace Garage3.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

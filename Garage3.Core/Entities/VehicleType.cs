@@ -8,5 +8,8 @@ namespace Garage3.Core.Entities
 
         [Range(1, int.MaxValue)]
         public int Spaces { get; set; }
+
+        [StringLength(15)]
+        public string Name { get; set; }
     }
 }
