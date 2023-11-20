@@ -8,7 +8,6 @@ namespace Garage3.Core.Entities
         [Key]
         public int Id { get; set; }
         //public int VehicleTypeId { get; set; }
-        public int ParkingSpaceId { get; set; }
 
         [Remote("IsRegistrationNumberExists", "ParkVehicles", ErrorMessage = "Registration Number already exists!")]
         public string RegistrationNumber { get; set; }

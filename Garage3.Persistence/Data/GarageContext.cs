@@ -20,6 +20,9 @@ namespace Garage3.Persistence.Data
         
         public DbSet<Member> Member => Set<Member>();
 
+        public DbSet<ParkingSpace> ParkingSpaces => Set<ParkingSpace>();
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
