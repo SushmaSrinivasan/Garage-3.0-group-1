@@ -1,59 +1,99 @@
-﻿@model IEnumerable<Garage3.Core.Entities.Member>
+﻿@model OverviewMemberViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Members overview";
+    OverviewMemberViewModel.SortParam sortParams = OverviewMemberViewModel.SortParams;
 }
 
-<h1>Index</h1>
+<h1>Members</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<form method="get">
+    <div class="row mb-3">
+        <div class="col-12 col-md-auto pe-md-0">
+            <select class="form-select w-auto" asp-for="@Model.By">
+                <option value="@nameof(Model.FirstName)" selected>First name</option>
+                <option value="@nameof(Model.LastName)">Last name</option>
+            </select>
+        </div>
+        <div class="col-md ps-md-0 pb-3 pb-md-0">
+            <input type="text" class="form-control col-4" placeholder="Search First name" asp-for="@Model.Search">
+        </div>
+        <div class="col-auto pb-3 pb-md-0">
+            <select class="form-select col-auto" asp-for="@Model.Membership" asp-items="@Html.GetEnumSelectList<Membership>()">
+                <option value="" selected>Type</option>
+            </select>
+        </div>
+        <input type="hidden" asp-for="@Model.Sort" />
+        <div class="col-12 col-md-auto">
+            <button class="btn btn-primary" id="Search-Button">Search</button>
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
-        <tr>
+        <tr class="table-header-with-sort">
             <th>
-                @Html.DisplayNameFor(model => model.Personnummer)
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Owner]">@Html.DisplayNameFor(model => model.Owner)@Model.GetSortSymbol(sortParams.Owner)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FirstName)
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Membership]">@Html.DisplayNameFor(model => model.Membership)@Model.GetSortSymbol(sortParams.Membership)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LastName)
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Type]">@Html.DisplayNameFor(model => model.Type)@Model.GetSortSymbol(sortParams.Type)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.RegistrationNumber]">@Html.DisplayNameFor(model => model.RegistrationNumber)@Model.GetSortSymbol(sortParams.RegistrationNumber)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Membership)
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.ParkTime]">@Html.DisplayNameFor(model => model.ParkTime)@Model.GetSortSymbol(sortParams.ParkTime)</a>
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeParked)
+            </th>
+
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Personnummer)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BirthDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Membership)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Vehicles)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Owner)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Membership)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RegistrationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ParkTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimeParked)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ParkVehicleId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ParkVehicleId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ParkVehicleId">Collect</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<script>
+    let searchBySelect = document.querySelector('#By');
+    let SearchTextInput = document.querySelector('#Search');
+
+    searchBySelect.addEventListener("change", function (e) {
+        SearchTextInput.value = "";
+        SearchTextInput.placeholder = `Search ${searchBySelect.options[searchBySelect.selectedIndex].text}`;
+        SearchTextInput.focus();
+    });
+</script>

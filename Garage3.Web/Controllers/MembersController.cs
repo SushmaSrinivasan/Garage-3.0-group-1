@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
+using Garage3.Web.Models.ViewModels;
 
 namespace Garage3.Web.Controllers
 {
@@ -22,9 +23,81 @@ namespace Garage3.Web.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-              return _context.Member != null ? 
-                          View(await _context.Member.ToListAsync()) :
-                          Problem("Entity set 'GarageContext.Member'  is null.");
+            return _context.Member != null ?
+                        View(await _context.Member.ToListAsync()) :
+                        Problem("Entity set 'GarageContext.Member'  is null.");
+        }
+
+        private IEnumerable<Member> Search(OverviewMemberViewModel member, IEnumerable<Member> members)
+        {
+            if (!string.IsNullOrWhiteSpace(member.By) && !string.IsNullOrWhiteSpace(member.Search))
+            {
+                if (member.By == nameof(member.FirstName))
+                {
+                    members = members.Where(m => m.FirstName.StartsWith(member.Search));
+                }
+                else if (member.By == nameof(member.LastName))
+                {
+                    members = members.Where(m => m.LastName.StartsWith(member.Search));
+                }
+            }
+
+            if (member.Membership != 0)
+            {
+                members = members.Where(m => m.Membership == member.Membership);
+            }
+
+            return members;
+        }
+
+        private IEnumerable<Member> Sort(OverviewMemberViewModel member, IEnumerable<Member> members)
+        {
+            //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
+            OverviewMemberViewModel.SortParam sortParams = OverviewMemberViewModel.SortParams;
+
+            ViewData[sortParams.FirstName] = sortParams.FirstName;
+            ViewData[sortParams.LastName] = sortParams.LastName;
+            ViewData[sortParams.Membership] = sortParams.Membership;
+            ViewData[sortParams.BirthDate] = sortParams.BirthDate;
+
+            if (string.IsNullOrWhiteSpace(member.Sort))
+            {
+                return members;
+            }
+
+            switch (member.Sort)
+            {
+                case string s when s.StartsWith(sortParams.FirstName):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.FirstName] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.FirstName.Length > 1 ? m.FirstName.Substring(0,2) : m.FirstName);
+                    }
+                    return members.OrderByDescending(m => m.FirstName.Length > 1 ? m.FirstName.Substring(0, 2) : m.FirstName);
+                case string s when s.StartsWith(sortParams.LastName):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.LastName] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.LastName);
+                    }
+                    return members.OrderByDescending(m => m.LastName);
+                case string s when s.StartsWith(sortParams.Membership):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.Membership] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.Membership);
+                    }
+                    return members.OrderByDescending(m => m.Membership);
+                case string s when s.StartsWith(sortParams.BirthDate):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.BirthDate] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.BirthDate);
+                    }
+                    return members.OrderByDescending(m => m.BirthDate);
+                default:
+                    return members;
+            }
         }
 
         // GET: Members/Details/5
@@ -150,14 +223,14 @@ namespace Garage3.Web.Controllers
             {
                 _context.Member.Remove(member);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MemberExists(int id)
         {
-          return (_context.Member?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Member?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

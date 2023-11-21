@@ -47,57 +47,6 @@ namespace Garage3.Web.Controllers
             return View(searchview);
         }
 
-        //public async Task<IActionResult> Search(OverviewVehicleViewModel vehicle)
-        //{
-
-        //    var vehicles = _context.ParkVehicle.AsQueryable();
-
-        //    //Search
-        //    if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
-        //    {
-        //        vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
-        //    }
-
-        //    //Sort
-        //    //This are constants that contain the value of the SortOrder param in the URl
-        //    //Example: https://localhost:7215/ParkVehicles/Search?SortOrder=VehicleType
-        //    const string RegistrationNumberSort = "RegistrationNumber",
-        //        VehicleTypeSort = "VehicleType",
-        //        ColorSort = "Color",
-        //        ParkingDateSort = "ParkingDate";
-
-        //    //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
-        //    ViewData["RegistrationNumberSort"] = RegistrationNumberSort;
-        //    ViewData["VehicleTypeSort"] = VehicleTypeSort;
-        //    ViewData["ColorSort"] = ColorSort;
-        //    ViewData["ParkingDate"] = ParkingDateSort;
-
-        //    //vehicle.SortOrder will contain the value of SortOrder param that in the example is ...Search?SortOrder=VehicleType
-        //    //So in this case it sorts by VehicleType
-        //    switch (vehicle.SortOrder)
-        //    {
-        //        case RegistrationNumberSort:
-        //            vehicles = vehicles.OrderBy(v => v.RegistrationNumber);
-        //            break;
-        //        case VehicleTypeSort:
-        //            vehicles = vehicles.OrderBy(s => s.VehicleType);
-        //            break;
-        //        case ColorSort:
-        //            vehicles = vehicles.OrderBy(s => s.Color);
-        //            break;
-        //        case ParkingDateSort:
-        //            vehicles = vehicles.OrderByDescending(s => s.ParkingDate);
-        //            break;
-        //        default:
-        //            break;
-        //    }
-
-        //    //Display
-        //    //Gets the search result
-        //    vehicle.Vehicles = await vehicles.ToListAsync();
-        //    return View(vehicle);
-        //}
-
         public async Task<IEnumerable<SelectListItem>> GetVehicleTypes()
         {
             return await _context.VehicleTypes.Select(v => new SelectListItem(v.Name, v.Id.ToString())).ToArrayAsync();
@@ -455,7 +404,40 @@ namespace Garage3.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        private StatisticsViewModel CalculateStatistics()
+        {
+            var totalWheels = _context.ParkVehicle.Sum(v => v.NumberOfWheels);
 
+            var totalRevenue = _context.ParkVehicle
+                .AsEnumerable()
+                .Select(v =>
+                {
+                    var timePassed = DateTime.Now - v.ParkingDate;
+                    var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
+                    var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
+                    return (hours: hoursRoundedDown, minutes: minutesRoundedDown);
+                })
+                .Sum(time => (time.hours * 70) + (time.minutes * 1.2));
+
+            var vehicleTypeAmount = _context.ParkVehicle
+                .GroupBy(v => v.VehicleTypeId) // Assuming "VehicleTypeId" is the foreign key property in ParkVehicle
+                .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
+
+            var statistics = new StatisticsViewModel
+            {
+                TotalWheels = totalWheels,
+                TotalRevenue = totalRevenue,
+                VehicleTypeAmount = vehicleTypeAmount
+            };
+
+            return statistics;
+        }
+
+        public IActionResult Statistics()
+        {
+            var statistics = CalculateStatistics();
+            return View(statistics);
+        }
         private bool ParkVehicleExists(int id)
         {
             return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
