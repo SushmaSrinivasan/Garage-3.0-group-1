@@ -32,11 +32,12 @@
                 <input asp-for="BirthDate" class="form-control" />
                 <span asp-validation-for="BirthDate" class="text-danger"></span>
             </div>
-           @*  <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Membership" class="control-label"></label>
-                <select asp-for="Membership" class="form-control"></select>
-               <span asp-validation-for="Membership" class="text-danger"></span> 
-            </div>  *@
+                <select class="form-select" asp-for="Membership" asp-items="@Html.GetEnumSelectList<Membership>()">
+                </select>
+                <span asp-validation-for="Membership" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
