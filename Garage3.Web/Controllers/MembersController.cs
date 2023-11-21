@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
+using Garage3.Web.Models.ViewModels;
 
 namespace Garage3.Web.Controllers
 {
@@ -22,9 +23,18 @@ namespace Garage3.Web.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-              return _context.Member != null ? 
-                          View(await _context.Member.ToListAsync()) :
-                          Problem("Entity set 'GarageContext.Member'  is null.");
+            var model = await _context.Member
+                .Select(m=>new MemberIndexViewModel
+                {
+                    Id = m.Id,
+                    Personnummer = m.Personnummer,
+                    FirstName = m.FirstName,
+                    LastName = m.LastName,
+                    FullName = m.FullName,
+                    BirthDate = m.BirthDate,
+                    Membership = m.Membership
+                }).ToListAsync();
+            return View(model);
         }
 
         // GET: Members/Details/5
@@ -56,15 +66,24 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Personnummer,FirstName,LastName,BirthDate,Membership")] Member member)
+        public async Task<IActionResult> Create(AddMemberViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                var member = new Member
+                    {
+                        Personnummer= viewModel.Personnummer,
+                        FirstName= viewModel.FirstName,
+                        LastName= viewModel.LastName,
+                        BirthDate= viewModel.BirthDate
+                       // Membership= viewModel.Membership
+                    };
+
                 _context.Add(member);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(member);
+            return View(viewModel);
         }
 
         // GET: Members/Edit/5
