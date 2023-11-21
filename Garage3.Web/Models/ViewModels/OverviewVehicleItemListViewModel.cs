@@ -1,6 +1,6 @@
 ﻿namespace Garage3.Web.Models.ViewModels
 {
-    public class ListViewModel
+    public class OverviewVehicleItemListViewModel
     {
         public int ParkVehicleId { get; set; }
         public string Owner { get; set; } = default!;
