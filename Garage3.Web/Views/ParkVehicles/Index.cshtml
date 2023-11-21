@@ -11,7 +11,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Owner)
+                <a >@Html.DisplayNameFor(model => model.Owner)</a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Membership)
@@ -37,7 +37,7 @@
         {
             <tr>
                 <td>
-                    <a href="@item.OwnerPersonnummer">@Html.DisplayFor(modelItem => item.Owner)</a>
+                   @Html.DisplayFor(modelItem => item.Owner)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Membership)
