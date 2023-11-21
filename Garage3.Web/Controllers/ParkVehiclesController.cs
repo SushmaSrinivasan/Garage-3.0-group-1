@@ -27,9 +27,6 @@ namespace Garage3.Web.Controllers
 
             var vehicles = _context.ParkVehicle.Include(v => v.Owner).Include(v => v.VehicleType).AsQueryable();
 
-
-
-
             vehicles = Search(searchview, vehicles);
             vehicles = Sort(searchview, vehicles);
 
