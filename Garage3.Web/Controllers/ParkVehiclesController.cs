@@ -5,6 +5,8 @@ using Garage3.Core;
 using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
 using Garage3.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Humanizer;
 
 namespace Garage3.Web.Controllers
 {
@@ -18,10 +20,20 @@ namespace Garage3.Web.Controllers
         }
 
         // GET: ParkVehicles
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(OverviewVehicleViewModel searchview)
         {
-            SearchParkVehicleViewModel searchview = new SearchParkVehicleViewModel();
-            searchview.Vehicles = await _context.ParkVehicle.Include(v => v.Owner).Include(v => v.VehicleType).Select(v => new ListViewModel
+
+            searchview.VehicleTypes = await GetVehicleTypes();
+
+            var vehicles = _context.ParkVehicle.Include(v => v.Owner).Include(v => v.VehicleType).AsQueryable();
+
+
+
+
+            vehicles = Search(searchview, vehicles);
+            vehicles = Sort(searchview, vehicles);
+
+            searchview.Vehicles = await vehicles.Select(v => new OverviewVehicleItemListViewModel
             {
                 Owner = v.Owner.FullName,
                 Membership = v.Owner.Membership.ToString(),
@@ -30,10 +42,12 @@ namespace Garage3.Web.Controllers
                 RegistrationNumber = v.RegistrationNumber,
                 Type = v.VehicleType.Name
             }).ToListAsync();
+
+
             return View(searchview);
         }
 
-        //public async Task<IActionResult> Search(SearchParkVehicleViewModel vehicle)
+        //public async Task<IActionResult> Search(OverviewVehicleViewModel vehicle)
         //{
 
         //    var vehicles = _context.ParkVehicle.AsQueryable();
@@ -84,36 +98,37 @@ namespace Garage3.Web.Controllers
         //    return View(vehicle);
         //}
 
-        private IQueryable<ParkVehicle> Search2(SearchParkVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
+        public async Task<IEnumerable<SelectListItem>> GetVehicleTypes()
         {
+            return await _context.VehicleTypes.Select(v => new SelectListItem(v.Name, v.Id.ToString())).ToArrayAsync();
+        }
 
-            if (!string.IsNullOrWhiteSpace(vehicle.RegistrationNumber))
+        private IQueryable<ParkVehicle> Search(OverviewVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
+        {
+            if (!string.IsNullOrWhiteSpace(vehicle.By) && !string.IsNullOrWhiteSpace(vehicle.Search))
             {
-                vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.RegistrationNumber));
+                if (vehicle.By == nameof(vehicle.RegistrationNumber))
+                {
+                    vehicles = vehicles.Where(v => v.RegistrationNumber.StartsWith(vehicle.Search));
+                }
+                else if (vehicle.By == nameof(vehicle.Owner))
+                {
+                    vehicles = vehicles.Where(v => v.Owner.FirstName.StartsWith(vehicle.Search));
+                }
             }
 
-            if (!string.IsNullOrWhiteSpace(vehicle.Type))
+            if (vehicle.Type != 0)
             {
-                //vehicles = vehicles.Where(v => v.VehicleType.Name.StartsWith(vehicle.Type));
-            }
-
-            if (!string.IsNullOrWhiteSpace(vehicle.Owner))
-            {
-                vehicles = vehicles.Where(v => v.Owner.FullName.StartsWith(vehicle.Owner));
+                vehicles = vehicles.Where(v => v.Id == vehicle.Type);
             }
 
             return vehicles;
         }
 
-        private IQueryable<ParkVehicle> Sort(SearchParkVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
+        private IQueryable<ParkVehicle> Sort(OverviewVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
         {
-            if (string.IsNullOrWhiteSpace(vehicle.Sort))
-            {
-                return vehicles;
-            }
-
             //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
-            SearchParkVehicleViewModel.SortParam sortParams = SearchParkVehicleViewModel.SortParams;
+            OverviewVehicleViewModel.SortParam sortParams = OverviewVehicleViewModel.SortParams;
 
             ViewData[sortParams.Owner] = sortParams.Owner;
             ViewData[sortParams.Membership] = sortParams.Membership;
@@ -121,63 +136,51 @@ namespace Garage3.Web.Controllers
             ViewData[sortParams.RegistrationNumber] = sortParams.RegistrationNumber;
             ViewData[sortParams.ParkTime] = sortParams.ParkTime;
 
+            if (string.IsNullOrWhiteSpace(vehicle.Sort))
+            {
+                return vehicles;
+            }
+
             switch (vehicle.Sort)
             {
                 case string s when s.StartsWith(sortParams.Owner):
                     if (!s.EndsWith(sortParams.DescendingSuffix))
                     {
                         ViewData[sortParams.Owner] += sortParams.DescendingSuffix;//Adding descending suffix
-                        return vehicles.OrderByDescending(v => v.Owner.FullName);
+                        return vehicles.OrderBy(v => v.Owner.FirstName);
                     }
-                    else
-                    {
-                        return vehicles.OrderBy(v => v.Owner.FullName);
-                    }
+                    return vehicles.OrderByDescending(v => v.Owner.FirstName);
                 case string s when s.StartsWith(sortParams.Membership):
                     if (!s.EndsWith(sortParams.DescendingSuffix))
                     {
                         ViewData[sortParams.Membership] += sortParams.DescendingSuffix;//Adding descending suffix
-                        return vehicles.OrderByDescending(v => v.Owner.Membership);
-                    }
-                    else
-                    {
                         return vehicles.OrderBy(v => v.Owner.Membership);
                     }
+                    return vehicles.OrderByDescending(v => v.Owner.Membership);
                 case string s when s.StartsWith(sortParams.Type):
-                    //if (!s.EndsWith(sortParams.DescendingSuffix))
-                    //{
-                    //    ViewData[sortParams.Type] += sortParams.DescendingSuffix;//Adding descending suffix
-                    //    return vehicles.OrderByDescending(v => v.VehicleType.Name);
-                    //}
-                    //else
-                    //{
-                    //    return vehicles.OrderBy(v => v.VehicleType.Name);
-                    //}
-                    break;
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.Type] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return vehicles.OrderBy(v => v.VehicleType.Name);
+                    }
+                    return vehicles.OrderByDescending(v => v.VehicleType.Name);
                 case string s when s.StartsWith(sortParams.RegistrationNumber):
                     if (!s.EndsWith(sortParams.DescendingSuffix))
                     {
                         ViewData[sortParams.RegistrationNumber] += sortParams.DescendingSuffix;//Adding descending suffix
-                        return vehicles.OrderByDescending(v => v.RegistrationNumber);
-                    }
-                    else
-                    {
                         return vehicles.OrderBy(v => v.RegistrationNumber);
                     }
+                    return vehicles.OrderByDescending(v => v.RegistrationNumber);
                 case string s when s.StartsWith(sortParams.ParkTime):
                     if (!s.EndsWith(sortParams.DescendingSuffix))
                     {
                         ViewData[sortParams.ParkTime] += sortParams.DescendingSuffix;//Adding descending suffix
-                        return vehicles.OrderByDescending(v => v.ParkingDate);
-                    }
-                    else
-                    {
                         return vehicles.OrderBy(v => v.ParkingDate);
                     }
+                    return vehicles.OrderByDescending(v => v.ParkingDate);
                 default:
                     return vehicles;
             }
-            return null;
 
         }
 
@@ -423,8 +426,8 @@ namespace Garage3.Web.Controllers
 
             if (parkVehicle != null)
             {
-               
-                 
+
+
                 var timePassed = DateTime.Now - parkVehicle.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
                 var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);  // Converts timePassed and rounds down its Hours to a full number.
                 var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
