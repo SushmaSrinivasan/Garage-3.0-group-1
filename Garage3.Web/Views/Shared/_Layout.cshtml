@@ -22,6 +22,24 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Index">Home</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Members
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nav-dropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Index">Overview</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Create">Add</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Vehicles type
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nav-dropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="VehicleTypes" asp-action="Index">List</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="VehicleTypes" asp-action="Create">Add</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Park">Park</a>
                         </li>
