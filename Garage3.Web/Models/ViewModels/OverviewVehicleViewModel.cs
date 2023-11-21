@@ -7,11 +7,11 @@ using System.ComponentModel.DataAnnotations;
 namespace Garage3.Web.Models.ViewModels
 {
     public partial class OverviewVehicleViewModel
-    { 
+    {
         public string? Owner { get; set; } //Member FullName
         public string? Membership { get; set; }
         public int Type { get; set; }
-        
+
         [Display(Name = "Registration Number")]
         public string? RegistrationNumber { get; set; }
 
@@ -39,7 +39,7 @@ namespace Garage3.Web.Models.ViewModels
             {
                 return "";
             }
-            else if(!Sort.EndsWith(SortParams.DescendingSuffix))
+            else if (!Sort.EndsWith(SortParams.DescendingSuffix))
             {
                 return " - a";
             }
