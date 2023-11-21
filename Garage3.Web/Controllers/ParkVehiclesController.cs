@@ -414,22 +414,26 @@ namespace Garage3.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.ParkVehicle == null)
+            if (_context.ParkVehicle == null || _context.Member == null)
             {
-                return Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle' is null.");
+                return Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle' or 'GarageContext.Member' is null.");
             }
 
             var parkVehicle = await _context.ParkVehicle.FindAsync(id);
 
             if (parkVehicle != null)
             {
-               
-                 
-                var timePassed = DateTime.Now - parkVehicle.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
-                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);  // Converts timePassed and rounds down its Hours to a full number.
-                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
+                var timePassed = DateTime.Now - parkVehicle.ParkingDate;
+                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
 
-                // Receipt data. Cost is calculated and rounded down. 
+                var member = await _context.Member.FindAsync(parkVehicle.MemberId); // Assuming there's a MemberId property in ParkVehicle indicating the member associated with the parked vehicle.
+
+                if (member == null)
+                {
+                    return Problem("Associated member not found.");
+                }
+
                 var receiptData = new ReceiptViewModel
                 {
                     RegistrationNumber = parkVehicle.RegistrationNumber,
@@ -438,13 +442,15 @@ namespace Garage3.Web.Controllers
                     HoursParked = hoursRoundedDown,
                     MinutesParked = minutesRoundedDown,
                     Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
-
+                    MemberFirstName = member.FirstName, // Add these lines to include member information in the receipt
+                    MemberLastName = member.LastName,
+                    MemberBirthDate = member.BirthDate,
+                    MemberMembership = member.Membership
                 };
 
                 _context.ParkVehicle.Remove(parkVehicle);
                 await _context.SaveChangesAsync();
 
-                // Pass the receipt data to the view
                 string informationToUser = $"{parkVehicle.VehicleType} <strong>{parkVehicle.RegistrationNumber}</strong> has been collected";
                 TempData["feedback"] = informationToUser;
                 return View("ReceiptView", receiptData);
@@ -468,7 +474,7 @@ namespace Garage3.Web.Controllers
                 .Sum(time => (time.hours * 70) + (time.minutes * 1.2));
 
             var vehicleTypeAmount = _context.ParkVehicle
-                .GroupBy(v => v.VehicleTypeId) // Assuming "VehicleTypeId" is the foreign key property in ParkVehicle
+                .GroupBy(v => v.VehicleTypeId) 
                 .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
 
             var statistics = new StatisticsViewModel
