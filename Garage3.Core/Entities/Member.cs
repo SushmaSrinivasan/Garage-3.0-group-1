@@ -11,8 +11,6 @@ namespace Garage3.Core.Entities
 
         private long personnummer;
         
-        
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Personnummer
         {
             get => personnummer;
@@ -55,7 +53,7 @@ namespace Garage3.Core.Entities
 
             day = Modifiedpersonnummer / 10000;
 
-            return DateTime.Now;
+            return new DateTime(year:year, month:month, day:day);
 
         }
     }

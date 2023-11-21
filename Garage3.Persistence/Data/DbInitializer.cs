@@ -35,7 +35,7 @@ namespace Garage3.Persistence.Data
 
                 var member = new Member[]
                 {
-                new Member{Personnummer=198713154221, FirstName="Kalle", LastName="Karlsson",Membership=Membership.Free},
+                new Member{Personnummer=198712154221, FirstName="Kalle", LastName="Karlsson",Membership=Membership.Free},
                 new Member{Personnummer=198010151226, FirstName="Johan", LastName="David",Membership=Membership.Free},
                 new Member{Personnummer=197512123772, FirstName="Anna", LastName="Andersson",Membership=Membership.Pro},
                 new Member{Personnummer=196208104221, FirstName="Mohammed", LastName="Mokthar",Membership=Membership.Free},
