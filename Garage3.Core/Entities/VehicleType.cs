@@ -12,7 +12,7 @@ namespace Garage3.Core.Entities
         [StringLength(15)]
         public string Name { get; set; }
 
-        public virtual ParkingSpace ParkingSpace { get; set; }
+      
 
     }
 }
