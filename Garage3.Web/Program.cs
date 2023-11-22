@@ -16,7 +16,6 @@ namespace Garage3.Web
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
-            new Member { Personnummer = 198702154221, FirstName = "Kalle", LastName = "Karlsson", Membership = Membership.Free };
 
             using (var scope = app.Services.CreateScope())
             {

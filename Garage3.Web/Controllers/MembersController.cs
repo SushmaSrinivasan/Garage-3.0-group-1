@@ -174,7 +174,9 @@ namespace Garage3.Web.Controllers
 
                 _context.Add(member);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+				string informationToUser = $"Member <strong>{member.Personnummer}</strong> has been registered";
+				TempData["feedback"] = informationToUser;
+				return RedirectToAction(nameof(Index));
             }
             return View(viewModel);
         }
@@ -211,8 +213,42 @@ namespace Garage3.Web.Controllers
             {
                 try
                 {
-                    _context.Update(member);
-                    await _context.SaveChangesAsync();
+					var existingMember = await _context.Member.AsNoTracking().FirstOrDefaultAsync(m => m.Id == member.Id);
+					//Checking for changes
+					string propertiesWithAChange = "";
+					List<string> changedProperties = new List<string>();
+
+					_context.Update(member);
+					await _context.SaveChangesAsync();
+
+					if (existingMember.Personnummer != member.Personnummer)
+					{
+						changedProperties.Add("<strong>Personnummer</strong>");
+					}
+                    if (existingMember.FirstName != member.FirstName)
+                    {
+                        changedProperties.Add("<strong>First name</strong>");
+                    }
+                    if (existingMember.LastName != member.LastName)
+					{
+						changedProperties.Add("<strong>Last name</strong>");
+					}
+					if (existingMember.Membership != member.Membership)
+					{
+						changedProperties.Add("<strong>Membership</strong>");
+					}
+					//Writing changes as feedback
+					if (changedProperties.Count > 0)
+					{
+						propertiesWithAChange = string.Join(" and ", changedProperties);
+
+						string informationToUser = $"The {propertiesWithAChange} for member <strong>{member.Personnummer}</strong> has been updated";
+						TempData["feedback"] = informationToUser;
+					}
+					else
+					{
+						TempData["feedback"] = $"No changes to {member.Personnummer} performed";
+					}
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -264,6 +300,8 @@ namespace Garage3.Web.Controllers
             }
 
             await _context.SaveChangesAsync();
+            string informationToUser = $"{member.FullName} <strong>{member.Personnummer}</strong> has been deleted";
+            TempData["feedback"] = informationToUser;
             return RedirectToAction(nameof(Index));
         }
 

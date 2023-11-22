@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
+using AutoMapper.Execution;
 
 namespace Garage3.Web.Controllers
 {
@@ -62,6 +63,8 @@ namespace Garage3.Web.Controllers
             {
                 _context.Add(vehicleType);
                 await _context.SaveChangesAsync();
+                string informationToUser = $"Vehicle type <strong>{vehicleType.Name}</strong> has been added";
+                TempData["feedback"] = informationToUser;
                 return RedirectToAction(nameof(Index));
             }
             return View(vehicleType);
@@ -99,8 +102,35 @@ namespace Garage3.Web.Controllers
             {
                 try
                 {
+                    
+                    var existingVehicleType = await _context.VehicleTypes.AsNoTracking().FirstOrDefaultAsync(v => v.Id == vehicleType.Id);
+                    //Checking for changes
+                    string propertiesWithAChange = "";
+                    List<string> changedProperties = new List<string>();
+
                     _context.Update(vehicleType);
                     await _context.SaveChangesAsync();
+
+                    if (existingVehicleType.Name != vehicleType.Name)
+                    {
+                        changedProperties.Add("<strong>Name</strong>");
+                    }
+                    if (existingVehicleType.Spaces != vehicleType.Spaces)
+                    {
+                        changedProperties.Add("<strong>Spaces</strong>");
+                    }
+                    //Writing changes as feedback
+                    if (changedProperties.Count > 0)
+                    {
+                        propertiesWithAChange = string.Join(" and ", changedProperties);
+
+                        string informationToUser = $"The {propertiesWithAChange} for vehicle type <strong>{vehicleType.Name}</strong> has been updated";
+                        TempData["feedback"] = informationToUser;
+                    }
+                    else
+                    {
+                        TempData["feedback"] = $"No changes to {vehicleType.Name} performed";
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -152,6 +182,8 @@ namespace Garage3.Web.Controllers
             }
             
             await _context.SaveChangesAsync();
+            string informationToUser = $"<strong>{vehicleType.Name}</strong> has been deleted";
+            TempData["feedback"] = informationToUser;
             return RedirectToAction(nameof(Index));
         }
 
