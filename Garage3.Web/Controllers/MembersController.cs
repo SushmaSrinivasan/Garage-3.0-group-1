@@ -21,23 +21,28 @@ namespace Garage3.Web.Controllers
         }
 
         // GET: Members
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(OverviewMemberViewModel member)
         {
-            var model = await _context.Member
-                .Select(m=>new MemberIndexViewModel
-                {
-                    Id = m.Id,
-                    Personnummer = m.Personnummer,
-                    FirstName = m.FirstName,
-                    LastName = m.LastName,
-                    FullName = m.FullName,
-                    BirthDate = m.BirthDate,
-                    Membership = m.Membership
-                }).ToListAsync();
-            return View(model);
+            IQueryable<MemberIndexViewModel> members = _context.Member.Include(m => m.Vehicles).Select(m => new MemberIndexViewModel
+            {
+                Id = m.Id,
+                Personnummer = m.Personnummer,
+                FirstName = m.FirstName,
+                LastName = m.LastName,
+                FullName = m.FullName,
+                BirthDate = m.BirthDate,
+                Membership = m.Membership,
+                VehicleCount = m.Vehicles!.Count()
+            }).AsQueryable();
+
+            members = Search(member, members);
+            members = Sort(member, members);
+
+            member.Members = await members.ToListAsync();
+            return View(member);
         }
 
-        private IEnumerable<Member> Search(OverviewMemberViewModel member, IEnumerable<Member> members)
+        private IQueryable<MemberIndexViewModel> Search(OverviewMemberViewModel member, IQueryable<MemberIndexViewModel> members)
         {
             if (!string.IsNullOrWhiteSpace(member.By) && !string.IsNullOrWhiteSpace(member.Search))
             {
@@ -51,7 +56,7 @@ namespace Garage3.Web.Controllers
                 }
             }
 
-            if (member.Membership != 0)
+            if (member.Membership.HasValue)
             {
                 members = members.Where(m => m.Membership == member.Membership);
             }
@@ -59,15 +64,17 @@ namespace Garage3.Web.Controllers
             return members;
         }
 
-        private IEnumerable<Member> Sort(OverviewMemberViewModel member, IEnumerable<Member> members)
+        private IQueryable<MemberIndexViewModel> Sort(OverviewMemberViewModel member, IQueryable<MemberIndexViewModel> members)
         {
             //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
             OverviewMemberViewModel.SortParam sortParams = OverviewMemberViewModel.SortParams;
 
+            ViewData[sortParams.Personnummer] = sortParams.Personnummer;
             ViewData[sortParams.FirstName] = sortParams.FirstName;
             ViewData[sortParams.LastName] = sortParams.LastName;
             ViewData[sortParams.Membership] = sortParams.Membership;
             ViewData[sortParams.BirthDate] = sortParams.BirthDate;
+            ViewData[sortParams.VehicleCount] = sortParams.VehicleCount;
 
             if (string.IsNullOrWhiteSpace(member.Sort))
             {
@@ -76,6 +83,13 @@ namespace Garage3.Web.Controllers
 
             switch (member.Sort)
             {
+                case string s when s.StartsWith(sortParams.Personnummer):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.Personnummer] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.Personnummer);
+                    }
+                    return members.OrderByDescending(m => m.Personnummer);
                 case string s when s.StartsWith(sortParams.FirstName):
                     if (!s.EndsWith(sortParams.DescendingSuffix))
                     {
@@ -104,6 +118,13 @@ namespace Garage3.Web.Controllers
                         return members.OrderBy(m => m.BirthDate);
                     }
                     return members.OrderByDescending(m => m.BirthDate);
+                case string s when s.StartsWith(sortParams.VehicleCount):
+                    if (!s.EndsWith(sortParams.DescendingSuffix))
+                    {
+                        ViewData[sortParams.VehicleCount] += sortParams.DescendingSuffix;//Adding descending suffix
+                        return members.OrderBy(m => m.VehicleCount);
+                    }
+                    return members.OrderByDescending(m => m.VehicleCount);
                 default:
                     return members;
             }

@@ -34,19 +34,19 @@
     <thead>
         <tr class="table-header-with-sort">
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Owner]">@Html.DisplayNameFor(model => model.Owner)@Model.GetSortSymbol(sortParams.Owner)</a>
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Owner]">@Html.DisplayNameFor(model => model.Owner)<i class="@Model.GetSortSymbol(sortParams.Owner)"></i></a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Membership]">@Html.DisplayNameFor(model => model.Membership)@Model.GetSortSymbol(sortParams.Membership)</a>
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Membership]">@Html.DisplayNameFor(model => model.Membership)<i class="@Model.GetSortSymbol(sortParams.Membership)"></i></a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Type]">@Html.DisplayNameFor(model => model.Type)@Model.GetSortSymbol(sortParams.Type)</a>
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.Type]">@Html.DisplayNameFor(model => model.Type)<i class="@Model.GetSortSymbol(sortParams.Type)"></i></a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.RegistrationNumber]">@Html.DisplayNameFor(model => model.RegistrationNumber)@Model.GetSortSymbol(sortParams.RegistrationNumber)</a>
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.RegistrationNumber]">@Html.DisplayNameFor(model => model.RegistrationNumber)<i class="@Model.GetSortSymbol(sortParams.RegistrationNumber)"></i></a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.ParkTime]">@Html.DisplayNameFor(model => model.ParkTime)@Model.GetSortSymbol(sortParams.ParkTime)</a>
+                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Type" asp-route-Sort="@ViewData[sortParams.ParkTime]">@Html.DisplayNameFor(model => model.ParkTime)<i class="@Model.GetSortSymbol(sortParams.ParkTime)"></i></a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.TimeParked)

@@ -37,15 +37,15 @@ namespace Garage3.Web.Models.ViewModels
         {
             if (sortParam == null || !Sort.StartsWith(sortParam))
             {
-                return "";
+                return "d-none";
             }
             else if (!Sort.EndsWith(SortParams.DescendingSuffix))
             {
-                return " - a";
+                return "bi bi-caret-up-fill";
             }
             else
             {
-                return " - d";
+                return "bi bi-caret-down-fill";
             }
         }
 
