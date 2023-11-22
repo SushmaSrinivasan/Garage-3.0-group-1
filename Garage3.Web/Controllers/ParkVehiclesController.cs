@@ -33,6 +33,7 @@ namespace Garage3.Web.Controllers
             searchview.Vehicles = await vehicles.Select(v => new OverviewVehicleItemListViewModel
             {
                 Owner = v.Owner.FullName,
+                OwnerId = v.Owner.Id,
                 Membership = v.Owner.Membership.ToString(),
                 ParkTime = v.ParkingDate,
                 ParkVehicleId = v.Id,

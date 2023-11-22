@@ -24,3 +24,12 @@ body {
 .table-header-with-sort > th > a {
     text-decoration: none;
 }
+
+.details-link {
+    text-decoration: none;
+}
+
+.details-link:hover {
+    text-decoration: underline;
+    opacity: 0.6;
+}

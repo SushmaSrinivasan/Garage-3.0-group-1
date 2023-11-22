@@ -1,4 +1,4 @@
-﻿@model Garage3.Core.Entities.Member
+﻿@model DetailsMemberViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -41,6 +41,55 @@
             @Html.DisplayFor(model => model.Membership)
         </dd>
     </dl>
+    
+    <hr />
+    <h5>Member's vehicles</h5>
+    @if (Model.Vehicles.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr class="table-header-with-sort">
+                    <th>
+                       @Html.DisplayNameFor(model => model.Type)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RegistrationNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ParkTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TimeParked)
+                    </th>
+
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Vehicles)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Type)
+                        </td>
+                        <td>
+                             <a class="text-black details-link" asp-controller="ParkVehicles" asp-action="Details" asp-route-Id="@item.ParkVehicleId" >@Html.DisplayFor(modelItem => item.RegistrationNumber)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ParkTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TimeParked)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="ms-3">No vehicles registered</p>
+    }
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |

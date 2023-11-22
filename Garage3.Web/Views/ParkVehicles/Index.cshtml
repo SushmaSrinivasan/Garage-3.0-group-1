@@ -60,7 +60,7 @@
         {
             <tr>
                 <td>
-                   @Html.DisplayFor(modelItem => item.Owner)
+                    <a class="text-black details-link" asp-controller="Members" asp-action="Details" asp-route-Id="@item.OwnerId" >@Html.DisplayFor(modelItem => item.Owner)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Membership)

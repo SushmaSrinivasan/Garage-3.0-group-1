@@ -138,14 +138,36 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Member
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var member = await _context.Member.Include(m => m.Vehicles).ThenInclude(v => v.VehicleType).FirstOrDefaultAsync(m => m.Id == id);
+
             if (member == null)
             {
                 return NotFound();
             }
 
-            return View(member);
+            var model = new DetailsMemberViewModel
+            {
+                Personnummer = member.Personnummer,
+                FirstName = member.FirstName,
+                LastName = member.LastName,
+                Membership = member.Membership,
+                BirthDate = member.BirthDate,
+                Id = member.Id
+            };
+
+            model.Vehicles = member.Vehicles is null ? new List<OverviewVehicleItemListViewModel>() 
+                : member.Vehicles.Select(v => new OverviewVehicleItemListViewModel
+            {
+                Type = v.VehicleType.Name,
+                RegistrationNumber = v.RegistrationNumber,
+                ParkTime = v.ParkingDate,
+                ParkVehicleId = v.Id
+
+
+            }).ToList();
+                
+
+            return View(model);
         }
 
         // GET: Members/Create

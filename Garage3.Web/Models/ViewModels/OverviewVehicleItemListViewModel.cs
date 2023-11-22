@@ -5,7 +5,7 @@
         public int ParkVehicleId { get; set; }
         public string Owner { get; set; } = default!;
 
-        public long OwnerPersonnummer { get; set; }
+        public int OwnerId { get; set; }
         public string Membership { get; set; } = default!;
         public string Type { get; set; } = default!;
         public string RegistrationNumber { get; set; } = default!;
