@@ -1,30 +1,27 @@
-﻿using Garage3.Core.Entities;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace Garage3.Web.Models.ViewModels
+public class EditParkVehicleViewModel
 {
-    public class EditParkVehicleViewModel
-    {
-        [Key] public int Id { get; set; }
+    [Key]
+    public int Id { get; set; }
 
+    [Remote("IsRegistrationNumberExists", "ParkVehicles", AdditionalFields = "ExistingRegistrationNumber", ErrorMessage = "Registration Number already exists!")]
+    public string RegistrationNumber { get; set; }
 
-        [Remote("IsRegistrationNumberExists", "ParkVehicles", AdditionalFields = "ExistingRegistrationNumber", ErrorMessage = "Registration Number already exists!")]
-        public string RegistrationNumber { get; set; }
-        public string ExistingRegistrationNumber { get; set; }
-        public DateTime ParkingDate { get; set; }
-        public VehicleType VehicleType { get; set; }
-        public string Color { get; set; } = string.Empty;
+    public string ExistingRegistrationNumber { get; set; }
+    public DateTime ParkingDate { get; set; }
 
-        [StringLength(15)]
-        public string Brand { get; set; } = string.Empty;
+    public int VehicleTypeId { get; set; }
 
-        [StringLength(20)]
-        public string Model { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
 
-        [Range(0, 10, ErrorMessage = "Wheels value should be within 0 and 10")]
-        public int NumberOfWheels { get; set; }
+    [StringLength(15)]
+    public string Brand { get; set; } = string.Empty;
 
+    [StringLength(20)]
+    public string Model { get; set; } = string.Empty;
 
-    }
+    [Range(0, 10, ErrorMessage = "Wheels value should be within 0 and 10")]
+    public int NumberOfWheels { get; set; }
 }
