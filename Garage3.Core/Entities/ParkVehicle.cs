@@ -19,10 +19,6 @@ public class ParkVehicle
     // Foreign key for MemberId
     public int MemberId { get; set; }
 
-    // Navigation property for MembershipType
-   
-
-
     public DateTime ParkingDate { get; set; }
 
     public VehicleType VehicleType { get; set; }

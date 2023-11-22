@@ -162,8 +162,8 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
             //creating instance for model and assigning values to the model
-            var detailsViewModel = await _context.ParkVehicle
-                .Select(v => new DetailViewModel
+            var detailsViewModel = await _context.ParkVehicle.Include(v => v.VehicleType)
+                .Select(v => new Garage3.Web.Models.ViewModels.DetailViewModel
                 {
                     Id = v.Id,
                     RegistrationNumber = v.RegistrationNumber,
@@ -172,7 +172,9 @@ namespace Garage3.Web.Controllers
                     Model = v.Model,
                     NumberOfWheels = v.NumberOfWheels,
                     ParkingDate = v.ParkingDate,
-                    VehicleType = v.VehicleType
+                    VehicleType = v.VehicleType.Name,
+                    Owner = v.Owner.FullName,
+                    OwnerId = v.Owner.Id
                 })
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -374,14 +376,27 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
 
-            var parkVehicle = await _context.ParkVehicle
+            var detailsViewModel = await _context.ParkVehicle.Include(v => v.VehicleType)
+                .Select(v => new Garage3.Web.Models.ViewModels.DetailViewModel
+                {
+                    Id = v.Id,
+                    RegistrationNumber = v.RegistrationNumber,
+                    Brand = v.Brand,
+                    Color = v.Color,
+                    Model = v.Model,
+                    NumberOfWheels = v.NumberOfWheels,
+                    ParkingDate = v.ParkingDate,
+                    VehicleType = v.VehicleType.Name,
+                    Owner = v.Owner.FullName,
+                    OwnerId = v.Owner.Id
+                })
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (parkVehicle == null)
+            if (detailsViewModel == null)
             {
                 return NotFound();
             }
 
-            return View(parkVehicle);
+            return View(detailsViewModel);
         }
 
         // POST: ParkVehicles/Delete/5

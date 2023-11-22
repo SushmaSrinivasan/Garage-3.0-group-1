@@ -24,7 +24,6 @@ namespace Garage3.Persistence.Data
 
         public DbSet<VehicleType> VehicleTypes => Set<VehicleType>();
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

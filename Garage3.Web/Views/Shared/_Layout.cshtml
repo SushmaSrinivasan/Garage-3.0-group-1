@@ -52,7 +52,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div id="main" class="container">
         <main role="main" class="pb-3">
             <p style="color:blue">@Html.Raw(TempData["feedback"])</p> @* informationToUser from ParkVehicleController goes here *@
             @RenderBody()
