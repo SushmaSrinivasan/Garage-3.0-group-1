@@ -25,5 +25,20 @@ namespace Garage3.Persistence.Data
         public DbSet<VehicleType> VehicleTypes => Set<VehicleType>();
 
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+           
+
+            modelBuilder.Entity<ParkingSpace>()
+                .HasOne(ps => ps.Vehicle)
+                .WithMany(v => v.Spots)
+                .HasForeignKey(ps => ps.VehicleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+        }
+
+
     }
 }

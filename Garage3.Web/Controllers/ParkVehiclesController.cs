@@ -7,6 +7,7 @@ using Garage3.Persistence.Data;
 using Garage3.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Humanizer;
+using AutoMapper.Execution;
 
 namespace Garage3.Web.Controllers
 {
@@ -48,6 +49,7 @@ namespace Garage3.Web.Controllers
         public async Task<IEnumerable<SelectListItem>> GetVehicleTypes()
         {
             return await _context.VehicleTypes.Select(v => new SelectListItem(v.Name, v.Id.ToString())).ToArrayAsync();
+
         }
 
         private IQueryable<ParkVehicle> Search(OverviewVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
@@ -182,10 +184,16 @@ namespace Garage3.Web.Controllers
             return View(detailsViewModel);
         }
 
+
+
         // GET: ParkVehicles/Park
         public IActionResult Park()
         {
-            return View();
+            ViewBag.VehicleTypes = new SelectList(_context.VehicleTypes, "Id", "Name");
+            ViewBag.MembershipType = new SelectList(Enum.GetValues(typeof(Membership)));
+
+
+            return View(new ParkVehicleViewModel());
         }
 
         // POST: ParkVehicles/Park
@@ -193,29 +201,46 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Park([Bind("Id,RegistrationNumber,VehicleType,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
+        public async Task<IActionResult> Park([Bind("Personnummer, MembershipType, RegistrationNumber, VehicleTypeId, Color, Brand, Model, NumberOfWheels")] ParkVehicleViewModel parkVehicleViewModel)
         {
+            var member = await _context.Member
+                .SingleOrDefaultAsync(m => m.Personnummer == parkVehicleViewModel.Personnummer);
+
+            if (member == null)
+            {
+                ModelState.AddModelError("Member", "Memberdoesnotexist");
+            }
             if (ModelState.IsValid)
             {
-                //checks if the registration number entered is matching with existing registration no's
-                if (await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicle.RegistrationNumber)))
+                if (await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicleViewModel.RegistrationNumber)))
                 {
-                    ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");//if same, returns the error message
+                    ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");
                 }
                 else
                 {
-                    //if not equal, then adds the vehicle to the park and displays the feedback message
+                    var parkVehicle = new ParkVehicle
+                    {
+                        Owner = member,
+                        RegistrationNumber = parkVehicleViewModel.RegistrationNumber,
+                        VehicleTypeId = parkVehicleViewModel.VehicleTypeId,
+                        Color = parkVehicleViewModel.Color,
+                        Brand = parkVehicleViewModel.Brand,
+                        Model = parkVehicleViewModel.Model,
+                    };
+
                     _context.Add(parkVehicle);
                     await _context.SaveChangesAsync();
-                    string informationToUser = $"Vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been parked";
+
+                    string informationToUser = $"Vehicle <strong>{parkVehicleViewModel.RegistrationNumber}</strong> has been parked";
                     TempData["feedback"] = informationToUser;
+
                     return RedirectToAction(nameof(Index));
-
                 }
-
-
             }
-            return View(parkVehicle);
+
+            ViewBag.VehicleTypes = new SelectList(_context.VehicleTypes, "Id", "Name");
+            ViewBag.MembershipType = new SelectList(Enum.GetValues(typeof(Membership)), "Value", "Text");
+            return View(parkVehicleViewModel);
         }
 
         // GET: ParkVehicles/Edit/5
@@ -421,16 +446,19 @@ namespace Garage3.Web.Controllers
                 .GroupBy(v => v.VehicleTypeId) // Assuming "VehicleTypeId" is the foreign key property in ParkVehicle
                 .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
 
+            // New: Calculate the number of members
+            var numberOfMembers = _context.Member.Count();
+
             var statistics = new StatisticsViewModel
             {
                 TotalWheels = totalWheels,
                 TotalRevenue = totalRevenue,
-                VehicleTypeAmount = vehicleTypeAmount
+                VehicleTypeAmount = vehicleTypeAmount,
+                NumberOfMembers = numberOfMembers  // Add this property to your StatisticsViewModel
             };
 
             return statistics;
         }
-
         public IActionResult Statistics()
         {
             var statistics = CalculateStatistics();

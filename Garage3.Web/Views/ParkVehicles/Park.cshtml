@@ -1,4 +1,5 @@
-﻿@model ParkVehicle
+﻿
+@model ParkVehicleViewModel
 
 @{
     ViewData["Title"] = "Park";
@@ -9,29 +10,36 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Park">
+        <form asp-action="Park" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @* <div class="form-group">
+            <div class="form-group">
                 <label asp-for="Personnummer" class="control-label"></label>
                 <input asp-for="Personnummer" class="form-control" />
                 <span asp-validation-for="Personnummer" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Membership" class="control-label"></label>
-                <input asp-for="Membership" class="form-control" />
-                <span asp-validation-for="Membership" class="text-danger"></span>
-            </div> *@
+@*             <div class="form-group">
+                <label asp-for="MembershipType" class="control-label"></label>
+                <select asp-for="MembershipType" asp-items="ViewBag.MembershipType" class="form-control">
+                    <option value="">Select Membership Type</option>
+                </select>
+                <span asp-validation-for="MembershipType" class="text-danger"></span>
+            </div>
+ *@
+
             <div class="form-group">
                 <label asp-for="RegistrationNumber" class="control-label"></label>
                 <input asp-for="RegistrationNumber" class="form-control" />
                 <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="VehicleType" class="control-label"></label>
-                <input asp-for="VehicleType" class="form-control" />
-                <span asp-validation-for="VehicleType" class="text-danger"></span>
-                
+                <label asp-for="VehicleTypeId" class="control-label">Vehicle Type</label>
+                <select asp-for="VehicleTypeId" asp-items="ViewBag.VehicleTypes" class="form-control">
+                    <option value="">Select Vehicle Type</option>
+                </select>
+                <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Color" class="control-label"></label>
                 <input asp-for="Color" class="form-control" />
