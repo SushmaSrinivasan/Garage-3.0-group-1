@@ -261,6 +261,11 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
 
+            if (TempData.ContainsKey("feedback"))
+            {
+                ViewBag.Feedback = TempData["feedback"].ToString();
+            }
+
             var editParkVehicle = new EditParkVehicleViewModel
             {
                 Id = parkVehicle.Id,
@@ -294,16 +299,73 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
 
+            if (parkVehicle.ExistingRegistrationNumber != parkVehicle.RegistrationNumber && await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicle.RegistrationNumber)))
+            {
+                ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");
+                return View(parkVehicle);
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
+                    var existingVehicle = await _context.ParkVehicle
+                        .Include(v => v.VehicleType) // Make sure to include related entities
+                        .FirstOrDefaultAsync(v => v.Id == parkVehicle.Id);
 
-                    // Update properties
+                    if (existingVehicle == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Checking for changes
+                    List<string> changedProperties = new List<string>();
+
+                    if (existingVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
+                    {
+                        changedProperties.Add("<strong>registration number</strong>");
+                    }
+                    if (existingVehicle.VehicleTypeId != parkVehicle.VehicleTypeId)
+                    {
+                        changedProperties.Add("<strong>vehicle type</strong>");
+                    }
+                    if (existingVehicle.Color != parkVehicle.Color)
+                    {
+                        changedProperties.Add("<strong>color</strong>");
+                    }
+                    if (existingVehicle.Brand != parkVehicle.Brand)
+                    {
+                        changedProperties.Add("<strong>brand</strong>");
+                    }
+                    if (existingVehicle.Model != parkVehicle.Model)
+                    {
+                        changedProperties.Add("<strong>model</strong>");
+                    }
+                    if (existingVehicle.NumberOfWheels != parkVehicle.NumberOfWheels)
+                    {
+                        changedProperties.Add("<strong>number of wheels</strong>");
+                    }
+
+                    // Writing changes as feedback
+                    if (changedProperties.Count > 0)
+                    {
+                        string propertiesWithAChange = string.Join(" and ", changedProperties);
+
+                        string informationToUser = $"The {propertiesWithAChange} for vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
+                        TempData["feedback"] = informationToUser;
+                    }
+                    else
+                    {
+                        TempData["feedback"] = $"No changes to {parkVehicle.RegistrationNumber} performed";
+                    }
+
+                    // Performing changes
                     existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
-                    existingVehicle.VehicleTypeId = parkVehicle.VehicleTypeId; // Update VehicleTypeId
-                                                                               // Update other properties...
+                    existingVehicle.VehicleTypeId = parkVehicle.VehicleTypeId;
+                    existingVehicle.Color = parkVehicle.Color;
+                    existingVehicle.Brand = parkVehicle.Brand;
+                    existingVehicle.Model = parkVehicle.Model;
+                    existingVehicle.NumberOfWheels = parkVehicle.NumberOfWheels;
 
                     // Save changes
                     await _context.SaveChangesAsync();
