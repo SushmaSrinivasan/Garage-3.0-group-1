@@ -43,9 +43,6 @@
                 <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Membership" asp-route-Sort="@ViewData[sortParams.LastName]">@Html.DisplayNameFor(model => model.LastName)<i class="@Model.GetSortSymbol(sortParams.LastName)"></i></a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Membership" asp-route-Sort="@ViewData[sortParams.BirthDate]">@Html.DisplayNameFor(model => model.BirthDate)<i class="@Model.GetSortSymbol(sortParams.BirthDate)"></i></a>
-            </th>
-            <th>
                 <a asp-action="Index" asp-route-By="@Model.By" asp-route-Search="@Model.Search" asp-route-Type="@Model.Membership" asp-route-Sort="@ViewData[sortParams.Membership]">@Html.DisplayNameFor(model => model.Membership)<i class="@Model.GetSortSymbol(sortParams.Membership)"></i></a>
             </th>
             <th>
