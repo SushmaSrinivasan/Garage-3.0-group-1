@@ -223,7 +223,7 @@ namespace Garage3.Web.Controllers
                         Personnummer = viewModel.Personnummer,
                         FirstName = viewModel.FirstName,
                         LastName = viewModel.LastName,
-                        Age = viewModel.Age,
+                        //Age = viewModel.Age,
                         // Membership= viewModel.Membership
                     };
 
