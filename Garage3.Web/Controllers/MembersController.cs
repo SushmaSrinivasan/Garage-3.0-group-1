@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
 using Garage3.Web.Models.ViewModels;
+using System.Text.RegularExpressions;
+using AutoMapper.Execution;
+using EntityMember = Garage3.Core.Entities.Member;
 
 namespace Garage3.Web.Controllers
 {
@@ -130,6 +133,22 @@ namespace Garage3.Web.Controllers
             }
         }
 
+        public bool IsValidPersonnummer(long personnummer)
+        {
+            const int validLength = 12;
+            var personNumberString = personnummer.ToString();
+
+            if(personNumberString.Length!=validLength)
+            {
+                return false;
+            }
+
+            string pattern = @"^\d{8}\d{4}$";
+            Regex regex= new Regex(pattern);
+
+            return regex.IsMatch(personNumberString);
+        }
+
         // GET: Members/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -183,23 +202,44 @@ namespace Garage3.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AddMemberViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var member = new Member
+                // Validate social security number format
+                if (!IsValidPersonnummer(viewModel.Personnummer))
+                {
+                    ModelState.AddModelError("personnummer", "Invalid Personnummer format.");
+                }
+
+
+                // Validate age for parking
+                if (viewModel.Age < 18)
+                {
+                    ModelState.AddModelError("Age", "Members must be over 18 years old.");
+                }
+                if (ModelState.IsValid)
+                {
+                    var member = new EntityMember
                     {
-                        Personnummer= viewModel.Personnummer,
-                        FirstName= viewModel.FirstName,
-                        LastName= viewModel.LastName,
-                        BirthDate= viewModel.BirthDate
-                       // Membership= viewModel.Membership
+                        Personnummer = viewModel.Personnummer,
+                        FirstName = viewModel.FirstName,
+                        LastName = viewModel.LastName,
+                        Age = viewModel.Age,
+                        // Membership= viewModel.Membership
                     };
 
-                _context.Add(member);
-                await _context.SaveChangesAsync();
-				string informationToUser = $"Member <strong>{member.Personnummer}</strong> has been registered";
-				TempData["feedback"] = informationToUser;
-				return RedirectToAction(nameof(Index));
+                    _context.Add(member);
+                    await _context.SaveChangesAsync();
+                    string informationToUser = $"Member <strong>{member.Personnummer}</strong> has been registered";
+                    TempData["feedback"] = informationToUser;
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            catch (DbUpdateException ex)
+            {
+                // Log the error
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+
             return View(viewModel);
         }
 
@@ -224,7 +264,7 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Personnummer,FirstName,LastName,BirthDate,Membership")] Member member)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Personnummer,FirstName,LastName,BirthDate,Membership")] EntityMember member)
         {
             if (id != member.Id)
             {

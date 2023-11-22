@@ -12,17 +12,10 @@ namespace Garage3.Core.Entities
         // Navigation property for ParkVehicles
         public ICollection<ParkVehicle> Vehicles { get; set; }
 
-        private long personnummer;
-        
-        public long Personnummer
-        {
-            get => personnummer;
-            set
-            {
-                personnummer = value;
-                BirthDate = GetBirhtDateFromPersonnummer(value);
-            }
-        }
+        public long Personnummer { get; set; }
+
+        public int Age { get; set; }
+
 
         [StringLength(30)]
         public string FirstName { get; set; } = default!;
@@ -38,25 +31,6 @@ namespace Garage3.Core.Entities
         public Membership Membership { get; set; }
 
 
-        private DateTime GetBirhtDateFromPersonnummer(long personnummer)
-        {
-            int year,
-                month,
-                day;
-            int Modifiedpersonnummer;
-
-            year = (int)(personnummer / 100000000);
-
-            Modifiedpersonnummer = (int)(personnummer - year * 100000000);
-
-            month = Modifiedpersonnummer / 1000000;
-
-            Modifiedpersonnummer -= month * 1000000;
-
-            day = Modifiedpersonnummer / 10000;
-
-            return new DateTime(year:year, month:month, day:day);
-
-        }
+        
     }
 }
