@@ -251,13 +251,17 @@ namespace Garage3.Web.Controllers
                 return NotFound();
             }
 
-            var parkVehicle = await _context.ParkVehicle.FindAsync(id);
+            var parkVehicle = await _context.ParkVehicle
+                .Include(pv => pv.VehicleType)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.Id == id);
+
             if (parkVehicle == null)
             {
                 return NotFound();
             }
 
-            var editpatkVehicle = new EditParkVehicleViewModel
+            var editParkVehicle = new EditParkVehicleViewModel
             {
                 Id = parkVehicle.Id,
                 ExistingRegistrationNumber = parkVehicle.RegistrationNumber,
@@ -267,28 +271,27 @@ namespace Garage3.Web.Controllers
                 Model = parkVehicle.Model,
                 NumberOfWheels = parkVehicle.NumberOfWheels,
                 ParkingDate = parkVehicle.ParkingDate,
-                VehicleType = parkVehicle.VehicleType
+                VehicleTypeId = parkVehicle.VehicleType.Id // Assign the VehicleTypeId
             };
 
-            return View(editpatkVehicle);
+            // Populate the dropdown for VehicleType
+            ViewBag.VehicleTypes = new SelectList(await _context.VehicleTypes.ToListAsync(), "Id", "Name", parkVehicle.VehicleType.Id);
+
+            return View(editParkVehicle);
         }
+
 
         // POST: ParkVehicles/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Edit(int id, EditParkVehicleViewModel parkVehicle)
         {
             if (id != parkVehicle.Id)
             {
                 return NotFound();
-            }
-
-            if (parkVehicle.ExistingRegistrationNumber != parkVehicle.RegistrationNumber && await _context.ParkVehicle.AnyAsync(v => v.RegistrationNumber.Equals(parkVehicle.RegistrationNumber)))
-            {
-                ModelState.AddModelError("RegistrationNumber", "Registration Number already exists");
-                return View(parkVehicle);
             }
 
             if (ModelState.IsValid)
@@ -297,59 +300,16 @@ namespace Garage3.Web.Controllers
                 {
                     var existingVehicle = await _context.ParkVehicle.FindAsync(parkVehicle.Id);
 
-                    //Checking for changes
-                    string propertiesWithAChange = "";
-                    List<string> changedProperties = new List<string>();
-
-                    if (existingVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
-                    {
-                        changedProperties.Add("<strong>registration number</strong>");
-                    }
-                    if (existingVehicle.VehicleType != parkVehicle.VehicleType)
-                    {
-                        changedProperties.Add("<strong>vehicle type</strong>");
-                    }
-                    if (existingVehicle.Color != parkVehicle.Color)
-                    {
-                        changedProperties.Add("<strong>color</strong>");
-                    }
-                    if (existingVehicle.Brand != parkVehicle.Brand)
-                    {
-                        changedProperties.Add("<strong>brand</strong>");
-                    }
-                    if (existingVehicle.Model != parkVehicle.Model)
-                    {
-                        changedProperties.Add("<strong>model</strong>");
-                    }
-                    if (existingVehicle.NumberOfWheels != parkVehicle.NumberOfWheels)
-                    {
-                        changedProperties.Add("<strong>number of wheels</strong>");
-                    }
-                    //Writing changes as feedback
-                    if (changedProperties.Count > 0)
-                    {
-                        propertiesWithAChange = string.Join(" and ", changedProperties);
-
-                        string informationToUser = $"The {propertiesWithAChange} for vehicle <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
-                        TempData["feedback"] = informationToUser;
-                    }
-                    else
-                    {
-                        TempData["feedback"] = $"No changes to {parkVehicle.RegistrationNumber} performed";
-                    }
-
-                    //Performing changes
+                    // Update properties
                     existingVehicle.RegistrationNumber = parkVehicle.RegistrationNumber;
-                    existingVehicle.VehicleType = parkVehicle.VehicleType;
-                    existingVehicle.Color = parkVehicle.Color;
-                    existingVehicle.Brand = parkVehicle.Brand;
-                    existingVehicle.Model = parkVehicle.Model;
-                    existingVehicle.NumberOfWheels = parkVehicle.NumberOfWheels;
+                    existingVehicle.VehicleTypeId = parkVehicle.VehicleTypeId; // Update VehicleTypeId
+                                                                               // Update other properties...
 
-                    existingVehicle.ParkingDate = existingVehicle.ParkingDate;
-
-                    _context.Update(existingVehicle);
+                    // Save changes
                     await _context.SaveChangesAsync();
+
+                    // Redirect to Index or another appropriate action
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -362,8 +322,9 @@ namespace Garage3.Web.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // If ModelState is not valid, return to the view with the invalid model
             return View(parkVehicle);
         }
         // GET: ParkVehicles/Delete/5
