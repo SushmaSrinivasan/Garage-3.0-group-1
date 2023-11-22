@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Persistence.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    [Migration("20231122092728_Membership_and_Vtype_migrationFix")]
+    [Migration("20231122101538_Membership_and_Vtype_migrationFix")]
     partial class Membership_and_Vtype_migrationFix
     {
         /// <inheritdoc />
@@ -120,9 +120,6 @@ namespace Garage3.Persistence.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MembershipType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -133,9 +130,6 @@ namespace Garage3.Persistence.Migrations
 
                     b.Property<DateTime>("ParkingDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<long>("Personnummer")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()

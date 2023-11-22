@@ -117,9 +117,6 @@ namespace Garage3.Persistence.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MembershipType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -130,9 +127,6 @@ namespace Garage3.Persistence.Migrations
 
                     b.Property<DateTime>("ParkingDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<long>("Personnummer")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()

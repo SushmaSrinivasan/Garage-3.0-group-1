@@ -29,15 +29,7 @@ namespace Garage3.Persistence.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ParkVehicle>()
-                .HasOne(pv => pv.Owner)
-                .WithMany(m => m.Vehicles)
-                .HasForeignKey(pv => pv.MemberId);  
-
-            modelBuilder.Entity<Member>()
-                .HasMany(m => m.Vehicles)
-                .WithOne(pv => pv.Owner)
-                .HasForeignKey(pv => pv.MemberId);
+           
 
             modelBuilder.Entity<ParkingSpace>()
                 .HasOne(ps => ps.Vehicle)

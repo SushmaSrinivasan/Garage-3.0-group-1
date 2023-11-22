@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+
 public class ParkVehicle
 {
     [Key]
@@ -9,8 +10,7 @@ public class ParkVehicle
 
     public int VehicleTypeId { get; set; }
 
-    // Foreign key for Member (Personnummer)
-    [ForeignKey(nameof(Personnummer))]
+    [ForeignKey(nameof(MemberId))]
     public Member Owner { get; set; }
 
     [Remote("IsRegistrationNumberExists", "ParkVehicles", ErrorMessage = "Registration Number already exists!")]
@@ -20,14 +20,12 @@ public class ParkVehicle
     public int MemberId { get; set; }
 
     // Navigation property for MembershipType
-    public Membership MembershipType { get; set; }
+   
+
 
     public DateTime ParkingDate { get; set; }
 
     public VehicleType VehicleType { get; set; }
-
-    // Actual Personnummer value
-    public long Personnummer { get; set; }
 
     [StringLength(50)]
     public string Color { get; set; } = string.Empty;

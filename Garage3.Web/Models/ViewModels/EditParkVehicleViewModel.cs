@@ -24,5 +24,7 @@ namespace Garage3.Web.Models.ViewModels
 
         [Range(0, 10, ErrorMessage = "Wheels value should be within 0 and 10")]
         public int NumberOfWheels { get; set; }
+
+
     }
 }
