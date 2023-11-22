@@ -91,50 +91,54 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Spaces,Name")] VehicleType vehicleType)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RegistrationNumber,VehicleTypeId,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
         {
-            if (id != vehicleType.Id)
+
+
+
+            if (id != parkVehicle.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var vehicleTypes = _context.VehicleTypes.ToList();
+                ViewBag.VehicleTypes = new SelectList(vehicleTypes, "Id", "Name", parkVehicle.VehicleTypeId);
                 try
                 {
-                    
-                    var existingVehicleType = await _context.VehicleTypes.AsNoTracking().FirstOrDefaultAsync(v => v.Id == vehicleType.Id);
-                    //Checking for changes
-                    string propertiesWithAChange = "";
-                    List<string> changedProperties = new List<string>();
+                    var existingParkVehicle = await _context.ParkVehicle.AsNoTracking().FirstOrDefaultAsync(pv => pv.Id == parkVehicle.Id);
+                
 
-                    _context.Update(vehicleType);
+                    _context.Update(parkVehicle);
                     await _context.SaveChangesAsync();
 
-                    if (existingVehicleType.Name != vehicleType.Name)
+                    // Checking for changes
+                    List<string> changedProperties = new List<string>();
+
+                    if (existingParkVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
                     {
-                        changedProperties.Add("<strong>Name</strong>");
+                        changedProperties.Add("<strong>Registration Number</strong>");
                     }
-                    if (existingVehicleType.Spaces != vehicleType.Spaces)
+                    if (existingParkVehicle.VehicleTypeId != parkVehicle.VehicleTypeId)
                     {
-                        changedProperties.Add("<strong>Spaces</strong>");
+                        changedProperties.Add("<strong>Vehicle Type</strong>");
                     }
-                    //Writing changes as feedback
+              
                     if (changedProperties.Count > 0)
                     {
-                        propertiesWithAChange = string.Join(" and ", changedProperties);
-
-                        string informationToUser = $"The {propertiesWithAChange} for vehicle type <strong>{vehicleType.Name}</strong> has been updated";
+                        string propertiesWithAChange = string.Join(" and ", changedProperties);
+                        string informationToUser = $"The {propertiesWithAChange} for vehicle with Registration Number <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
                         TempData["feedback"] = informationToUser;
                     }
                     else
                     {
-                        TempData["feedback"] = $"No changes to {vehicleType.Name} performed";
+                        TempData["feedback"] = $"No changes to vehicle with Registration Number {parkVehicle.RegistrationNumber} performed";
                     }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!VehicleTypeExists(vehicleType.Id))
+                    if (!ParkVehicleExists(parkVehicle.Id))
                     {
                         return NotFound();
                     }
@@ -145,7 +149,8 @@ namespace Garage3.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(vehicleType);
+
+            return View(parkVehicle);
         }
 
         // GET: VehicleTypes/Delete/5
@@ -185,6 +190,11 @@ namespace Garage3.Web.Controllers
             string informationToUser = $"<strong>{vehicleType.Name}</strong> has been deleted";
             TempData["feedback"] = informationToUser;
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool ParkVehicleExists(int id)
+        {
+            return _context.ParkVehicle.Any(e => e.Id == id);
         }
 
         private bool VehicleTypeExists(int id)
