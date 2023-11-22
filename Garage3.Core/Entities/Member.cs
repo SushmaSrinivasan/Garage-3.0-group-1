@@ -14,8 +14,6 @@ namespace Garage3.Core.Entities
 
         public long Personnummer { get; set; }
 
-        public int Age { get; set; }
-
 
         [StringLength(30)]
         public string FirstName { get; set; } = default!;
