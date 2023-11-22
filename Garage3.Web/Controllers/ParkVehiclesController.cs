@@ -50,6 +50,7 @@ namespace Garage3.Web.Controllers
         public async Task<IEnumerable<SelectListItem>> GetVehicleTypes()
         {
             return await _context.VehicleTypes.Select(v => new SelectListItem(v.Name, v.Id.ToString())).ToArrayAsync();
+
         }
 
         private IQueryable<ParkVehicle> Search(OverviewVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
@@ -187,6 +188,10 @@ namespace Garage3.Web.Controllers
         // GET: ParkVehicles/Park
         public IActionResult Park()
         {
+            ViewBag.VehicleTypes = new SelectList(_context.VehicleTypes, "Id", "Name");
+            ViewBag.MembershipType = new SelectList(Enum.GetValues(typeof(Membership)));
+
+
             return View();
         }
 
@@ -195,7 +200,7 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Park([Bind("Id,RegistrationNumber,VehicleType,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
+        public async Task<IActionResult> Park([Bind("Id,RegistrationNumber,VehicleTypeId,Color,Brand,Model,NumberOfWheels,MembershipType")] ParkVehicle parkVehicle)
         {
             if (ModelState.IsValid)
             {
@@ -423,16 +428,19 @@ namespace Garage3.Web.Controllers
                 .GroupBy(v => v.VehicleTypeId) // Assuming "VehicleTypeId" is the foreign key property in ParkVehicle
                 .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
 
+            // New: Calculate the number of members
+            var numberOfMembers = _context.Member.Count();
+
             var statistics = new StatisticsViewModel
             {
                 TotalWheels = totalWheels,
                 TotalRevenue = totalRevenue,
-                VehicleTypeAmount = vehicleTypeAmount
+                VehicleTypeAmount = vehicleTypeAmount,
+                NumberOfMembers = numberOfMembers  // Add this property to your StatisticsViewModel
             };
 
             return statistics;
         }
-
         public IActionResult Statistics()
         {
             var statistics = CalculateStatistics();

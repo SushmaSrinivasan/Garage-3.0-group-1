@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Persistence.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    [Migration("20231121153950_ErikMigration")]
-    partial class ErikMigration
+    [Migration("20231122092728_Membership_and_Vtype_migrationFix")]
+    partial class Membership_and_Vtype_migrationFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,54 +57,6 @@ namespace Garage3.Persistence.Migrations
                     b.ToTable("Member");
                 });
 
-            modelBuilder.Entity("Garage3.Core.Entities.ParkVehicle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("NumberOfWheels")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ParkingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RegistrationNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("VehicleTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("VehicleTypeId");
-
-                    b.ToTable("ParkVehicle");
-                });
-
             modelBuilder.Entity("Garage3.Core.Entities.ParkingSpace", b =>
                 {
                     b.Property<int>("Id")
@@ -112,12 +64,6 @@ namespace Garage3.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsOccupied")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ParkingSpot")
-                        .HasColumnType("int");
 
                     b.Property<int>("SpotNumber")
                         .HasColumnType("int");
@@ -153,7 +99,71 @@ namespace Garage3.Persistence.Migrations
                     b.ToTable("VehicleTypes");
                 });
 
-            modelBuilder.Entity("Garage3.Core.Entities.ParkVehicle", b =>
+            modelBuilder.Entity("ParkVehicle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MembershipType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("NumberOfWheels")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ParkingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Personnummer")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VehicleTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("VehicleTypeId");
+
+                    b.ToTable("ParkVehicle");
+                });
+
+            modelBuilder.Entity("Garage3.Core.Entities.ParkingSpace", b =>
+                {
+                    b.HasOne("ParkVehicle", "Vehicle")
+                        .WithMany("Spots")
+                        .HasForeignKey("VehicleId")
+                        .IsRequired();
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("ParkVehicle", b =>
                 {
                     b.HasOne("Garage3.Core.Entities.Member", "Owner")
                         .WithMany("Vehicles")
@@ -172,23 +182,12 @@ namespace Garage3.Persistence.Migrations
                     b.Navigation("VehicleType");
                 });
 
-            modelBuilder.Entity("Garage3.Core.Entities.ParkingSpace", b =>
-                {
-                    b.HasOne("Garage3.Core.Entities.ParkVehicle", "Vehicle")
-                        .WithMany("Spots")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Vehicle");
-                });
-
             modelBuilder.Entity("Garage3.Core.Entities.Member", b =>
                 {
                     b.Navigation("Vehicles");
                 });
 
-            modelBuilder.Entity("Garage3.Core.Entities.ParkVehicle", b =>
+            modelBuilder.Entity("ParkVehicle", b =>
                 {
                     b.Navigation("Spots");
                 });
