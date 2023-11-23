@@ -34,8 +34,20 @@
 
             <div class="form-group">
                 <label asp-for="VehicleTypeId" class="control-label">Vehicle Type</label>
-                <select asp-for="VehicleTypeId" asp-items="ViewBag.VehicleTypes" class="form-control">
+                <select asp-for="VehicleTypeId" class="form-control">
                     <option value="">Select Vehicle Type</option>
+                    @foreach (var type in Model.VehicleTypes)
+                    {
+                        if (type.HasWhereToPark)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@type.Id" disabled>@type.Name</option>
+                        }
+                    }
+
                 </select>
                 <span asp-validation-for="VehicleTypeId" class="text-danger"></span>
             </div>

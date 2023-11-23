@@ -91,54 +91,52 @@ namespace Garage3.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RegistrationNumber,VehicleTypeId,Color,Brand,Model,NumberOfWheels")] ParkVehicle parkVehicle)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Spaces,Name")] VehicleType VehicleType)
         {
 
 
 
-            if (id != parkVehicle.Id)
+            if (id != VehicleType.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                var vehicleTypes = _context.VehicleTypes.ToList();
-                ViewBag.VehicleTypes = new SelectList(vehicleTypes, "Id", "Name", parkVehicle.VehicleTypeId);
                 try
                 {
-                    var existingParkVehicle = await _context.ParkVehicle.AsNoTracking().FirstOrDefaultAsync(pv => pv.Id == parkVehicle.Id);
+                    var existingVehicleType = await _context.VehicleTypes.AsNoTracking().FirstOrDefaultAsync(vt => vt.Id == VehicleType.Id);
                 
 
-                    _context.Update(parkVehicle);
+                    _context.Update(VehicleType);
                     await _context.SaveChangesAsync();
 
                     // Checking for changes
                     List<string> changedProperties = new List<string>();
 
-                    if (existingParkVehicle.RegistrationNumber != parkVehicle.RegistrationNumber)
+                    if (existingVehicleType.Spaces != VehicleType.Spaces)
                     {
-                        changedProperties.Add("<strong>Registration Number</strong>");
+                        changedProperties.Add("<strong>Spaces</strong>");
                     }
-                    if (existingParkVehicle.VehicleTypeId != parkVehicle.VehicleTypeId)
+                    if (existingVehicleType.Name != VehicleType.Name)
                     {
-                        changedProperties.Add("<strong>Vehicle Type</strong>");
+                        changedProperties.Add("<strong>Name</strong>");
                     }
               
                     if (changedProperties.Count > 0)
                     {
                         string propertiesWithAChange = string.Join(" and ", changedProperties);
-                        string informationToUser = $"The {propertiesWithAChange} for vehicle with Registration Number <strong>{parkVehicle.RegistrationNumber}</strong> has been updated";
+                        string informationToUser = $"The {propertiesWithAChange} for vehicle type with Name <strong>{VehicleType.Name}</strong> has been updated";
                         TempData["feedback"] = informationToUser;
                     }
                     else
                     {
-                        TempData["feedback"] = $"No changes to vehicle with Registration Number {parkVehicle.RegistrationNumber} performed";
+                        TempData["feedback"] = $"No changes to type with Name {VehicleType.Name} performed";
                     }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ParkVehicleExists(parkVehicle.Id))
+                    if (!VehicleTypeExists(VehicleType.Id))
                     {
                         return NotFound();
                     }
@@ -150,7 +148,7 @@ namespace Garage3.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(parkVehicle);
+            return View(VehicleType);
         }
 
         // GET: VehicleTypes/Delete/5

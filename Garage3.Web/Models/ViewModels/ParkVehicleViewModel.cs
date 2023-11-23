@@ -13,8 +13,8 @@ namespace Garage3.Web.Models.ViewModels
         public string Brand { get; set; }
         public string Model { get; set; }
         public int NumberOfWheels { get; set; }
-
         public long Personnummer { get; set; }
-        //public Membership MembershipType { get; set; }
+
+        public IEnumerable<ParkVehicleTypeViewModel> VehicleTypes { get; set; } = new List<ParkVehicleTypeViewModel>();
     }
 }

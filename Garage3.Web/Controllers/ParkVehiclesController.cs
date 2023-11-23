@@ -189,13 +189,15 @@ namespace Garage3.Web.Controllers
 
 
         // GET: ParkVehicles/Park
-        public IActionResult Park()
+        public async Task<IActionResult> Park()
         {
-            ViewBag.VehicleTypes = new SelectList(_context.VehicleTypes, "Id", "Name");
+            var model = new ParkVehicleViewModel();
+            model.VehicleTypes = await GetParkVehicleTypes();
+
             ViewBag.MembershipType = new SelectList(Enum.GetValues(typeof(Membership)));
 
 
-            return View(new ParkVehicleViewModel());
+            return View(model);
         }
 
         // POST: ParkVehicles/Park
@@ -230,19 +232,110 @@ namespace Garage3.Web.Controllers
                         Model = parkVehicleViewModel.Model,
                     };
 
-                    _context.Add(parkVehicle);
-                    await _context.SaveChangesAsync();
+                    ICollection<ParkingSpace> spots = await GetWhereToPark(parkVehicle.VehicleTypeId);
 
-                    string informationToUser = $"Vehicle <strong>{parkVehicleViewModel.RegistrationNumber}</strong> has been parked";
-                    TempData["feedback"] = informationToUser;
+                    if (spots.Any())
+                    {
+                        parkVehicle.Spots = spots;
+                        _context.Add(parkVehicle);
+                        await _context.SaveChangesAsync();
 
-                    return RedirectToAction(nameof(Index));
+                        string informationToUser = $"Vehicle <strong>{parkVehicleViewModel.RegistrationNumber}</strong> has been parked at {string.Join(", ", parkVehicle.Spots.Select(s => s.Id))}";
+                        TempData["feedback"] = informationToUser;
+
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
             }
 
-            ViewBag.VehicleTypes = new SelectList(_context.VehicleTypes, "Id", "Name");
+            parkVehicleViewModel.VehicleTypes = await GetParkVehicleTypes();
             ViewBag.MembershipType = new SelectList(Enum.GetValues(typeof(Membership)), "Value", "Text");
             return View(parkVehicleViewModel);
+        }
+
+        private async Task<IEnumerable<ParkVehicleTypeViewModel>> GetParkVehicleTypes()
+        {
+            var spots = _context.ParkingSpaces.AsQueryable();
+
+            ICollection<OverviewParkingSpaceViewModel> finalSpots;
+
+            finalSpots = new List<OverviewParkingSpaceViewModel>();
+            var spotsList = await spots.Where(s => s.VehicleId == null).OrderBy(s => s.Id).ToListAsync();
+
+            int maxConsecutiveCount = 0, count = 0;
+            int? prevSpotId = null;
+
+            foreach (int id in spotsList.Select(s => s.Id))
+            {
+                if (!prevSpotId.HasValue || id - prevSpotId == 1)
+                {
+                    count++;
+                }
+                else
+                {
+                    maxConsecutiveCount = Math.Max(maxConsecutiveCount, count);
+                    count = 1;
+                }
+                prevSpotId = id;
+            }
+
+            maxConsecutiveCount = Math.Max(maxConsecutiveCount, count);
+
+            var vehicleTypes = await _context.VehicleTypes.ToListAsync();
+            List<ParkVehicleTypeViewModel> parkVehicleType = new(vehicleTypes.Count);
+
+            foreach (VehicleType v in vehicleTypes)
+            {
+                parkVehicleType.Add(new ParkVehicleTypeViewModel
+                {
+                    Id = v.Id,
+                    Name = v.Name,
+                    HasWhereToPark = maxConsecutiveCount >= v.Spaces,
+                });
+            }
+
+            return parkVehicleType;
+
+        }
+
+        private async Task<ICollection<ParkingSpace>> GetWhereToPark(int vehicleTypeId)
+        {
+            VehicleType? type = _context.VehicleTypes.FirstOrDefault(vt => vt.Id == vehicleTypeId);
+
+            if (type is null)
+            {
+                return new List<ParkingSpace>();
+            }
+
+            var spots = _context.ParkingSpaces.AsQueryable();
+
+            List<ParkingSpace> finalSpots = new(type.Spaces);
+
+            var spotsList = await spots.Where(s => s.VehicleId == null).OrderBy(s => s.Id).ToListAsync();
+
+            int? prevSpotId = null;
+
+            foreach (ParkingSpace spot in spotsList)
+            {
+                if (!prevSpotId.HasValue || spot.Id - prevSpotId == 1)
+                {
+                    finalSpots.Add(spot);
+
+                    if (finalSpots.Count == type.Spaces)
+                    {
+                        return finalSpots;
+                    }
+                }
+                else
+                {
+                    finalSpots.Clear();
+                    finalSpots.Add(spot);
+                }
+                prevSpotId = spot.Id;
+            }
+
+            return new List<ParkingSpace>();
+
         }
 
         // GET: ParkVehicles/Edit/5
@@ -559,7 +652,7 @@ namespace Garage3.Web.Controllers
                     return spots.Where(s => s.Vehicle == null);
                 case ParkingSpaceFilters.Occupied:
                     return spots.Where(s => s.Vehicle != null);
-                default: 
+                default:
                     return spots;
             }
         }
