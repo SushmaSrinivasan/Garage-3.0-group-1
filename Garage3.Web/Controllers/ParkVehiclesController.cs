@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using Garage3.Core;
-using Garage3.Core.Entities;
+﻿using Garage3.Core.Entities;
 using Garage3.Persistence.Data;
 using Garage3.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Humanizer;
-using AutoMapper.Execution;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace Garage3.Web.Controllers
 {
@@ -563,8 +560,8 @@ namespace Garage3.Web.Controllers
 
                 var receiptData = new ReceiptViewModel
                 {
-                    FirstName = parkVehicle.Owner.FirstName, 
-                    LastName = parkVehicle.Owner.LastName,  
+                    FirstName = parkVehicle.Owner.FirstName,
+                    LastName = parkVehicle.Owner.LastName,
                     RegistrationNumber = parkVehicle.RegistrationNumber,
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
@@ -603,9 +600,9 @@ namespace Garage3.Web.Controllers
                 .GroupBy(v => v.VehicleTypeId)
                 .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
 
-           
+
             var occupiedParkingSpots = _context.ParkingSpaces.Count(s => s.VehicleId != null);
-                        
+
             var totalParkingSpots = _context.ParkingSpaces.Count();
 
             var numberOfMembers = _context.Member.Count();
