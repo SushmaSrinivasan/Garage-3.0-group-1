@@ -6,4 +6,6 @@ public class StatisticsViewModel
     public double TotalRevenue { get; set; }
     public Dictionary<string, int> VehicleTypeAmount { get; set; }
     public int NumberOfMembers { get; set; }
+    public int OccupiedParkingSpots { get; set; }
+    public int TotalParkingSpots { get; set; }
 }
