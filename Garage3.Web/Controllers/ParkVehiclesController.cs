@@ -574,10 +574,14 @@ namespace Garage3.Web.Controllers
                 .Sum(time => (time.hours * 70) + (time.minutes * 1.2));
 
             var vehicleTypeAmount = _context.ParkVehicle
-                .GroupBy(v => v.VehicleTypeId) // Assuming "VehicleTypeId" is the foreign key property in ParkVehicle
+                .GroupBy(v => v.VehicleTypeId)
                 .ToDictionary(group => _context.VehicleTypes.Find(group.Key)?.Name ?? "Unknown", group => group.Count());
 
-            // New: Calculate the number of members
+           
+            var occupiedParkingSpots = _context.ParkingSpaces.Count(s => s.VehicleId != null);
+                        
+            var totalParkingSpots = _context.ParkingSpaces.Count();
+
             var numberOfMembers = _context.Member.Count();
 
             var statistics = new StatisticsViewModel
@@ -585,7 +589,9 @@ namespace Garage3.Web.Controllers
                 TotalWheels = totalWheels,
                 TotalRevenue = totalRevenue,
                 VehicleTypeAmount = vehicleTypeAmount,
-                NumberOfMembers = numberOfMembers  // Add this property to your StatisticsViewModel
+                NumberOfMembers = numberOfMembers,
+                OccupiedParkingSpots = occupiedParkingSpots,
+                TotalParkingSpots = totalParkingSpots
             };
 
             return statistics;
