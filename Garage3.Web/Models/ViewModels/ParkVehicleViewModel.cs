@@ -12,6 +12,7 @@ namespace Garage3.Web.Models.ViewModels
         public string Color { get; set; }
         public string Brand { get; set; }
         public string Model { get; set; }
+        [Range(0, 10, ErrorMessage = "Wheels value should be within 0 and 10")]
         public int NumberOfWheels { get; set; }
         public long Personnummer { get; set; }
 
