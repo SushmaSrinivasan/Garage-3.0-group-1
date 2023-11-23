@@ -33,7 +33,7 @@ namespace Garage3.Persistence.Data
             modelBuilder.Entity<ParkingSpace>()
                 .HasOne(ps => ps.Vehicle)
                 .WithMany(v => v.Spots)
-                .HasForeignKey(ps => ps.VehicleId)
+                //.HasForeignKey(ps => ps.VehicleId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
         }

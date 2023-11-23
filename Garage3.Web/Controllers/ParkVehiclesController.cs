@@ -210,7 +210,7 @@ namespace Garage3.Web.Controllers
 
             if (member == null)
             {
-                ModelState.AddModelError("Member", "Memberdoesnotexist");
+                ModelState.AddModelError("Personnummer", "Member does not exist");
             }
             if (ModelState.IsValid)
             {
@@ -502,15 +502,81 @@ namespace Garage3.Web.Controllers
             var statistics = CalculateStatistics();
             return View(statistics);
         }
+
+        public async Task<IActionResult> ParkingLotOverview(OverviewParkingLotViewModel parkingLot)
+        {
+            var spots = _context.ParkingSpaces.Include(p => p.Vehicle).ThenInclude(v => v.VehicleType).AsQueryable();
+
+            spots = FilterSpots(parkingLot, spots);
+
+            ICollection<OverviewParkingSpaceViewModel> finalSpots;
+
+            finalSpots = new List<OverviewParkingSpaceViewModel>();
+            var spotsList = await spots.OrderBy(s => s.Id).ToListAsync();
+
+            int prevSpotId = 0, groupId = 0;
+            int? prevVehicleId = 0;
+
+            var groupedSpots = spotsList.GroupBy(s =>
+            {
+                groupId = (s.Id - prevSpotId != 1 || prevVehicleId != s.VehicleId) ? groupId + 1 : groupId;
+
+                prevSpotId = s.Id;
+                prevVehicleId = s.VehicleId;
+                return groupId;
+            }).Select(g => new
+            {
+                MinSpot = g.Min(s => s.Id),
+                MaxSpot = g.Max(s => s.Id),
+                Vehicle = g.FirstOrDefault().Vehicle
+            });
+
+            foreach (var s in groupedSpots)
+            {
+                var spot = new OverviewParkingSpaceViewModel();
+                spot.MinSpot = s.MinSpot;
+                spot.MaxSpot = s.MaxSpot;
+
+                if (s.Vehicle is not null)
+                {
+                    spot.VehicleId = s.Vehicle.Id;
+                    spot.VehicleRegistrationNumber = s.Vehicle.RegistrationNumber;
+                    spot.VehicleType = s.Vehicle.VehicleType.Name;
+                }
+                finalSpots.Add(spot);
+            }
+
+            parkingLot.spots = finalSpots;
+
+            return View(parkingLot);
+        }
+
+        public IQueryable<ParkingSpace> FilterSpots(OverviewParkingLotViewModel parkingLot, IQueryable<ParkingSpace> spots)
+        {
+            switch (parkingLot.StateFilter)
+            {
+                case ParkingSpaceFilters.Free:
+                    return spots.Where(s => s.Vehicle == null);
+                case ParkingSpaceFilters.Occupied:
+                    return spots.Where(s => s.Vehicle != null);
+                default: 
+                    return spots;
+            }
+        }
+
+
         private bool ParkVehicleExists(int id)
         {
             return (_context.ParkVehicle?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
     }
 }

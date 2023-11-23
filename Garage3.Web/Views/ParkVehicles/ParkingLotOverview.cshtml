@@ -1,0 +1,61 @@
+﻿@model OverviewParkingLotViewModel
+
+@{
+    ViewData["Title"] = "Parking lot";
+}
+
+<h1>Parking lot</h1>
+
+<form method="get">
+    <div class="input-group">
+        <label asp-for="StateFilter" class="control-label me-2 align-middle"></label>
+        <div class="col-auto">
+            <select class="form-select w-auto" asp-for="StateFilter" asp-items="@Html.GetEnumSelectList<ParkingSpaceFilters>()">
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Filter" class="btn btn-primary" />
+        </div>
+    </div>
+    
+</form>
+
+<table class="table">
+    <thead>
+        <tr class="table-header-with-sort">
+            <th>
+                @Html.DisplayNameFor(model => model.State)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spot)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VehicleType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VehicleRegistrationNumber)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.spots)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.State)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Spot)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VehicleType)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-Id="@item.VehicleId" class="card-link">@Html.DisplayFor(modelItem => item.VehicleRegistrationNumber)</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

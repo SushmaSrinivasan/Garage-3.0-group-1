@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Garage3.Persistence.Migrations
 {
     [DbContext(typeof(GarageContext))]
-    [Migration("20231122101538_Membership_and_Vtype_migrationFix")]
-    partial class Membership_and_Vtype_migrationFix
+    [Migration("20231122231140_ParkingSpaceNullableVehicle")]
+    partial class ParkingSpaceNullableVehicle
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,10 +65,7 @@ namespace Garage3.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SpotNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VehicleId")
+                    b.Property<int?>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -151,8 +148,7 @@ namespace Garage3.Persistence.Migrations
                 {
                     b.HasOne("ParkVehicle", "Vehicle")
                         .WithMany("Spots")
-                        .HasForeignKey("VehicleId")
-                        .IsRequired();
+                        .HasForeignKey("VehicleId");
 
                     b.Navigation("Vehicle");
                 });

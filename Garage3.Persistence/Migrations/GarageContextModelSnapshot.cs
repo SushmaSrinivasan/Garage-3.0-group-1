@@ -62,10 +62,7 @@ namespace Garage3.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SpotNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VehicleId")
+                    b.Property<int?>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -148,8 +145,7 @@ namespace Garage3.Persistence.Migrations
                 {
                     b.HasOne("ParkVehicle", "Vehicle")
                         .WithMany("Spots")
-                        .HasForeignKey("VehicleId")
-                        .IsRequired();
+                        .HasForeignKey("VehicleId");
 
                     b.Navigation("Vehicle");
                 });
