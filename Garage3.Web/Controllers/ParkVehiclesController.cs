@@ -232,7 +232,7 @@ namespace Garage3.Web.Controllers
                         Model = parkVehicleViewModel.Model,
                     };
 
-                    ICollection<ParkingSpace> spots = await GetWhereToPark(parkVehicle.VehicleTypeId);
+                    ICollection<ParkingSpace> spots = await GetWhereToPark(parkVehicle.VehicleTypeId, s => s.VehicleId == null);
 
                     if (spots.Any())
                     {
@@ -298,7 +298,7 @@ namespace Garage3.Web.Controllers
 
         }
 
-        private async Task<ICollection<ParkingSpace>> GetWhereToPark(int vehicleTypeId)
+        private async Task<ICollection<ParkingSpace>> GetWhereToPark(int vehicleTypeId, System.Linq.Expressions.Expression<Func<ParkingSpace, bool>> predicate, ICollection<ParkingSpace>? currentSpaces = null)
         {
             VehicleType? type = _context.VehicleTypes.FirstOrDefault(vt => vt.Id == vehicleTypeId);
 
@@ -306,12 +306,23 @@ namespace Garage3.Web.Controllers
             {
                 return new List<ParkingSpace>();
             }
+            else if (currentSpaces is not null)
+            {
+                if (type.Spaces == currentSpaces.Count)
+                {
+                    return new List<ParkingSpace>();
+                }
+                else if (currentSpaces.Count > type.Spaces)
+                {
+                    return new List<ParkingSpace>(currentSpaces.Take(currentSpaces.Count - (currentSpaces.Count - type.Spaces)));
+                }
+            }
 
             var spots = _context.ParkingSpaces.AsQueryable();
 
             List<ParkingSpace> finalSpots = new(type.Spaces);
 
-            var spotsList = await spots.Where(s => s.VehicleId == null).OrderBy(s => s.Id).ToListAsync();
+            var spotsList = await spots.Where(predicate).OrderBy(s => s.Id).ToListAsync();
 
             int? prevSpotId = null;
 
@@ -375,7 +386,7 @@ namespace Garage3.Web.Controllers
             };
 
             // Populate the dropdown for VehicleType
-            ViewBag.VehicleTypes = new SelectList(await _context.VehicleTypes.ToListAsync(), "Id", "Name", parkVehicle.VehicleType.Id);
+            editParkVehicle.VehicleTypes = await GetParkVehicleTypes();
 
             return View(editParkVehicle);
         }
@@ -406,6 +417,7 @@ namespace Garage3.Web.Controllers
                 {
                     var existingVehicle = await _context.ParkVehicle
                         .Include(v => v.VehicleType) // Make sure to include related entities
+                        .Include(v => v.Spots)
                         .FirstOrDefaultAsync(v => v.Id == parkVehicle.Id);
 
                     if (existingVehicle == null)
@@ -423,6 +435,16 @@ namespace Garage3.Web.Controllers
                     if (existingVehicle.VehicleTypeId != parkVehicle.VehicleTypeId)
                     {
                         changedProperties.Add("<strong>vehicle type</strong>");
+
+                        var newSpots = await GetWhereToPark(parkVehicle.VehicleTypeId,
+                            s => s.VehicleId == null || s.VehicleId == existingVehicle.Id,
+                            currentSpaces: existingVehicle.Spots);
+
+                        if (newSpots.Any())
+                        {
+                            existingVehicle.Spots = newSpots;
+                        }
+
                     }
                     if (existingVehicle.Color != parkVehicle.Color)
                     {
@@ -482,6 +504,10 @@ namespace Garage3.Web.Controllers
             }
 
             // If ModelState is not valid, return to the view with the invalid model
+
+            // Populate the dropdown for VehicleType
+            parkVehicle.VehicleTypes = await GetParkVehicleTypes();
+
             return View(parkVehicle);
         }
         // GET: ParkVehicles/Delete/5

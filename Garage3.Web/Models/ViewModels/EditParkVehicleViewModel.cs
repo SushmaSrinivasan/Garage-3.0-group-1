@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Garage3.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 public class EditParkVehicleViewModel
@@ -24,4 +25,6 @@ public class EditParkVehicleViewModel
 
     [Range(0, 10, ErrorMessage = "Wheels value should be within 0 and 10")]
     public int NumberOfWheels { get; set; }
+
+    public IEnumerable<ParkVehicleTypeViewModel> VehicleTypes { get; set; } = new List<ParkVehicleTypeViewModel>();
 }
