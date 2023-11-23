@@ -73,7 +73,7 @@ namespace Garage3.Web.Controllers
 
         private IQueryable<ParkVehicle> Sort(OverviewVehicleViewModel vehicle, IQueryable<ParkVehicle> vehicles)
         {
-            //Here we make the SortOrder param value available in the view so it can be added when submiting or click an <a> tag
+            //Parameter Values for Sorting. 
             OverviewVehicleViewModel.SortParam sortParams = OverviewVehicleViewModel.SortParams;
 
             ViewData[sortParams.Owner] = sortParams.Owner;
@@ -379,7 +379,7 @@ namespace Garage3.Web.Controllers
                 Model = parkVehicle.Model,
                 NumberOfWheels = parkVehicle.NumberOfWheels,
                 ParkingDate = parkVehicle.ParkingDate,
-                VehicleTypeId = parkVehicle.VehicleType.Id // Assign the VehicleTypeId
+                VehicleTypeId = parkVehicle.VehicleType.Id // Assigns the VehicleTypeId
             };
 
             // Populate the dropdown for VehicleType
@@ -412,8 +412,9 @@ namespace Garage3.Web.Controllers
             {
                 try
                 {
+
                     var existingVehicle = await _context.ParkVehicle
-                        .Include(v => v.VehicleType) // Make sure to include related entities
+                        .Include(v => v.VehicleType) 
                         .Include(v => v.Spots)
                         .FirstOrDefaultAsync(v => v.Id == parkVehicle.Id);
 
@@ -554,10 +555,11 @@ namespace Garage3.Web.Controllers
 
             if (parkVehicle != null)
             {
+                //Revenue Calculation
                 var timePassed = DateTime.Now - parkVehicle.ParkingDate;
                 var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
                 var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
-
+                // Print Receipt data. 
                 var receiptData = new ReceiptViewModel
                 {
                     FirstName = parkVehicle.Owner.FirstName,
@@ -583,8 +585,9 @@ namespace Garage3.Web.Controllers
         }
         private StatisticsViewModel CalculateStatistics()
         {
+            // Sums up Total Wheels.
             var totalWheels = _context.ParkVehicle.Sum(v => v.NumberOfWheels);
-
+            // Sums up Total Revenue. 
             var totalRevenue = _context.ParkVehicle
                 .AsEnumerable()
                 .Select(v =>
