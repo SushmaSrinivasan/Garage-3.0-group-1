@@ -68,7 +68,7 @@ namespace Garage3.Web.Controllers
 
             if (vehicle.Type != 0)
             {
-                vehicles = vehicles.Where(v => v.Id == vehicle.Type);
+                vehicles = vehicles.Where(v => v.VehicleTypeId == vehicle.Type);
             }
 
             return vehicles;
