@@ -432,34 +432,34 @@ namespace Garage3.Web.Controllers
                 return Problem("Entity set 'Exercise_12_Garage_2_0___part_1_Group1Context.ParkVehicle' is null.");
             }
 
-            var parkVehicle = await _context.ParkVehicle.FindAsync(id);
+            var parkVehicle = await _context.ParkVehicle
+                .Include(v => v.Owner)
+                .FirstOrDefaultAsync(v => v.Id == id);
 
             if (parkVehicle != null)
             {
+                var timePassed = DateTime.Now - parkVehicle.ParkingDate;
+                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);
+                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60)));
 
-
-                var timePassed = DateTime.Now - parkVehicle.ParkingDate; // Gets the amount of time by comparing current date with date of parking.
-                var hoursRoundedDown = (int)Math.Floor(timePassed.TotalHours);  // Converts timePassed and rounds down its Hours to a full number.
-                var minutesRoundedDown = (int)Math.Floor((timePassed.TotalMinutes - (hoursRoundedDown * 60))); // Rounds down and Resets Minutes every 60 minutes
-
-                // Receipt data. Cost is calculated and rounded down. 
                 var receiptData = new ReceiptViewModel
                 {
+                    FirstName = parkVehicle.Owner.FirstName, 
+                    LastName = parkVehicle.Owner.LastName,  
                     RegistrationNumber = parkVehicle.RegistrationNumber,
                     Brand = parkVehicle.Brand,
                     Model = parkVehicle.Model,
                     HoursParked = hoursRoundedDown,
                     MinutesParked = minutesRoundedDown,
                     Cost = Math.Floor((hoursRoundedDown * 70) + (minutesRoundedDown * 1.2)),
-
                 };
 
                 _context.ParkVehicle.Remove(parkVehicle);
                 await _context.SaveChangesAsync();
 
-                // Pass the receipt data to the view
                 string informationToUser = $"{parkVehicle.VehicleType} <strong>{parkVehicle.RegistrationNumber}</strong> has been collected";
                 TempData["feedback"] = informationToUser;
+
                 return View("ReceiptView", receiptData);
             }
 

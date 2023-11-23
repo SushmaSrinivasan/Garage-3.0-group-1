@@ -10,30 +10,31 @@
     <link rel="stylesheet" href="~/Exercise_12_Garage_2._0___part_1_Group1.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-light border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="ParkVehicles" asp-action="Index">Garage 3.0</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Index">Home</a>
-                        </li>
+  <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-light border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+                <img src="~/garage30.png" alt="Garage 3.0 Logo" height="80" style="margin-bottom: 5px;" asp-area="" asp-controller="ParkVehicles" asp-action="Index" />
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Index" style="font-size: larger;">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: larger;">
+                            Members
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="nav-dropdown">
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Index">Overview</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Create">Add</a></li>
+                        </ul>
+                    </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                Members
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="nav-dropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Index">Overview</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Members" asp-action="Create">Add</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="nav-dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: larger;">
                                 Vehicles type
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="nav-dropdown">
@@ -42,13 +43,13 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Park">Park</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Park" style="font-size: larger;">Park</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Statistics">Statistics</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="Statistics" style="font-size: larger;">Statistics</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="ParkingLotOverview">Parking Lot</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ParkVehicles" asp-action="ParkingLotOverview" style="font-size: larger;">Parking Lot</a>
                         </li>
                     </ul>
                 </div>
